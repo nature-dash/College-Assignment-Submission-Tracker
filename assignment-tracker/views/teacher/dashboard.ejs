@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{ background:#f4f7fc; }
+        .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+        .top-btn{ border-radius:15px; }
+        .stat-card { text-decoration: none; color: inherit; display: block; }
+        .stat-card:hover { transform: translateY(-5px); transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <h2>👨‍🏫 Teacher Dashboard</h2>
+            <p>Welcome, <b><%= user.name || user.username %></b></p>
+        </div>
+        <div>
+            <a href="/logout" class="btn btn-danger top-btn">Logout</a>
+        </div>
+    </div>
+
+    <% const dashQuery = Object.keys(filters).filter(k => k !== 'taskStatus').map(k => k + '=' + encodeURIComponent(filters[k])).join('&'); %>
+    <% const taskQuery = Object.keys(filters).map(k => k + '=' + encodeURIComponent(filters[k])).join('&'); %>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <a href="/teacher<%= dashQuery ? '?' + dashQuery : '' %>" class="stat-card">
+                <div class="card card-box text-center p-4">
+                    <h5>Total Tasks</h5>
+                    <h1><%= totalTasks %></h1>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/teacher?taskStatus=Submitted<%= dashQuery ? '&' + dashQuery : '' %>" class="stat-card">
+                <div class="card card-box text-center p-4">
+                    <h5>Submitted</h5>
+                    <h1 class="text-success"><%= submittedCount %></h1>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/teacher?taskStatus=Pending<%= dashQuery ? '&' + dashQuery : '' %>" class="stat-card">
+                <div class="card card-box text-center p-4">
+                    <h5>Pending</h5>
+                    <h1 class="text-warning"><%= pendingCount %></h1>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/teacher?taskStatus=Late<%= dashQuery ? '&' + dashQuery : '' %>" class="stat-card">
+                <div class="card card-box text-center p-4">
+                    <h5>Late</h5>
+                    <h1 class="text-danger"><%= lateCount %></h1>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Buttons ABOVE the filter bar -->
+    <div class="mb-4">
+        <a href="/teacher/add" class="btn btn-success me-2">➕ Add Assignment</a>
+        <a href="/teacher/calendar<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-primary me-2">📅 Calendar</a>
+        <a href="/teacher/students<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-info text-white">👥 Students</a>
+    </div>
+
+    <% if (!displayTasks) { %>
+    <!-- Default Assignments View -->
+    <div class="card card-box p-4 mb-4">
+        <h4 class="mb-3">Filters</h4>
+        <form action="/teacher" method="GET">
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-select" name="department">
+                        <option>All Departments</option>
+                        <option <%= filters.department === 'B.Sc Computer Science' ? 'selected' : '' %>>B.Sc Computer Science</option>
+                        <option <%= filters.department === 'BCA' ? 'selected' : '' %>>BCA</option>
+                        <option <%= filters.department === 'B.Com' ? 'selected' : '' %>>B.Com</option>
+                        <option <%= filters.department === 'BBA' ? 'selected' : '' %>>BBA</option>
+                        <option <%= filters.department === 'B.Sc Mathematics' ? 'selected' : '' %>>B.Sc Mathematics</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="year">
+                        <option>All Years</option>
+                        <option value="1" <%= filters.year == '1' ? 'selected' : '' %>>I Year</option>
+                        <option value="2" <%= filters.year == '2' ? 'selected' : '' %>>II Year</option>
+                        <option value="3" <%= filters.year == '3' ? 'selected' : '' %>>III Year</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="subject">
+                        <option>All Subjects</option>
+                        <option <%= filters.subject === 'DBMS' ? 'selected' : '' %>>DBMS</option>
+                        <option <%= filters.subject === 'Java' ? 'selected' : '' %>>Java</option>
+                        <option <%= filters.subject === 'Operating Systems' ? 'selected' : '' %>>Operating Systems</option>
+                        <option <%= filters.subject === 'English' ? 'selected' : '' %>>English</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card card-box p-4">
+        <h4>Assignments</h4>
+        <table class="table table-hover mt-3">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Due Date</th>
+                    <th>Progress</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(assignments.length === 0) { %>
+                    <tr><td colspan="7" class="text-center text-muted">No assignments found</td></tr>
+                <% } else { %>
+                    <% assignments.forEach(function(a) { %>
+                    <tr>
+                        <td>
+                            <a href="/teacher/view/<%= a.id %><%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>"><%= a.title %></a>
+                            <br><small class="text-muted">Assigned by: <%= a.assignedBy || 'Admin' %></small>
+                        </td>
+                        <td><%= a.department %></td>
+                        <td><%= a.year %></td>
+                        <td><%= a.subject %></td>
+                        <td><%= new Date(a.dueDate).toLocaleDateString() %></td>
+                        <td>
+                            <% if(a.totalStudents === 0) { %>
+                                <span class="badge bg-secondary">No Students</span>
+                            <% } else { %>
+                                <span class="badge <%= a.submittedStudents === a.totalStudents ? 'bg-success' : (a.submittedStudents > 0 ? 'bg-warning' : 'bg-danger') %>">
+                                    <%= a.submittedStudents %>/<%= a.totalStudents %> submitted
+                                </span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <a href="/teacher/edit/<%= a.id %><%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-sm btn-primary">Edit</a>
+                        </td>
+                    </tr>
+                    <% }); %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <% } else { %>
+    
+    <!-- Task View -->
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h4>Showing <%= filters.taskStatus %> Tasks (<%= displayTasks.length %>)</h4>
+        <a href="/teacher<%= dashQuery ? '?' + dashQuery : '' %>" class="btn btn-secondary">🔙 Back to Assignments</a>
+    </div>
+
+    <!-- Filters for Task View -->
+    <div class="card card-box p-4 mb-4">
+        <h4 class="mb-3">Filters</h4>
+        <form action="/teacher" method="GET">
+            <input type="hidden" name="taskStatus" value="<%= filters.taskStatus %>">
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-select" name="department">
+                        <option>All Departments</option>
+                        <option <%= filters.department === 'B.Sc Computer Science' ? 'selected' : '' %>>B.Sc Computer Science</option>
+                        <option <%= filters.department === 'BCA' ? 'selected' : '' %>>BCA</option>
+                        <option <%= filters.department === 'B.Com' ? 'selected' : '' %>>B.Com</option>
+                        <option <%= filters.department === 'BBA' ? 'selected' : '' %>>BBA</option>
+                        <option <%= filters.department === 'B.Sc Mathematics' ? 'selected' : '' %>>B.Sc Mathematics</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="year">
+                        <option>All Years</option>
+                        <option value="1" <%= filters.year == '1' ? 'selected' : '' %>>I Year</option>
+                        <option value="2" <%= filters.year == '2' ? 'selected' : '' %>>II Year</option>
+                        <option value="3" <%= filters.year == '3' ? 'selected' : '' %>>III Year</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="subject">
+                        <option>All Subjects</option>
+                        <option <%= filters.subject === 'DBMS' ? 'selected' : '' %>>DBMS</option>
+                        <option <%= filters.subject === 'Java' ? 'selected' : '' %>>Java</option>
+                        <option <%= filters.subject === 'Operating Systems' ? 'selected' : '' %>>Operating Systems</option>
+                        <option <%= filters.subject === 'English' ? 'selected' : '' %>>English</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card card-box p-4">
+        <table class="table table-hover mt-3">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Assignment Title</th>
+                    <th>Department</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Submission Link</th>
+                    <% if(filters.taskStatus === 'Submitted') { %>
+                    <th>Checked</th>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(displayTasks.length === 0) { %>
+                    <tr><td colspan="7" class="text-center text-muted">No tasks found for this status.</td></tr>
+                <% } else { %>
+                    <% displayTasks.forEach(function(t) { 
+                        const currentQuery = Object.keys(filters).map(k => k + '=' + encodeURIComponent(filters[k])).join('&');
+                    %>
+                    <tr>
+                        <td><a href="/teacher/student/<%= t.student.id %>?ref=<%= encodeURIComponent(currentQuery) %>"><%= t.student.name %></a></td>
+                        <td><a href="/teacher/view/<%= t.assignment.id %>?ref=<%= encodeURIComponent(currentQuery) %>"><%= t.assignment.title %></a></td>
+                        <td><%= t.assignment.department %></td>
+                        <td><%= new Date(t.assignment.dueDate).toLocaleDateString() %></td>
+                        <td>
+                            <% if(t.status === 'Submitted') { %>
+                                <span class="badge bg-success">Submitted</span>
+                            <% } else if(t.status === 'Pending') { %>
+                                <span class="badge bg-warning">Pending</span>
+                            <% } else if(t.status === 'Late') { %>
+                                <span class="badge bg-danger">Late</span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if(t.submission && t.submission.link) { %>
+                                <a href="<%= t.submission.link %>" target="_blank" class="btn btn-sm btn-info text-white">View Link</a>
+                            <% } else { %>
+                                -
+                            <% } %>
+                        </td>
+                        <% if(filters.taskStatus === 'Submitted') { %>
+                        <td>
+                            <form action="/teacher/check/<%= t.assignment.id %>/<%= t.student.id %>" method="POST" style="display:inline;">
+                                <input type="hidden" name="ref" value="<%= currentQuery %>">
+                                <% if(t.submission && t.submission.checked) { %>
+                                    <button class="btn btn-sm btn-success">✅ Checked</button>
+                                <% } else { %>
+                                    <button class="btn btn-sm btn-outline-secondary">☐ Not Checked</button>
+                                <% } %>
+                            </form>
+                        </td>
+                        <% } %>
+                    </tr>
+                    <% }); %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    
+    <% } %>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assignment Calendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+    <style>
+        body{ background:#f4f7fc; }
+        .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between mb-4">
+        <h2>📅 Assignment Calendar</h2>
+        <a href="<%= ref ? '/teacher?' + ref : '/teacher' %>" class="btn btn-secondary">🔙 Back to Dashboard</a>
+    </div>
+    <p class="text-muted">🟢 All submitted &nbsp; 🟠 Partially submitted &nbsp; 🔴 None submitted</p>
+
+    <div class="card card-box p-4">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const assignments = <%- JSON.stringify(assignments) %>;
+    const studentsList = <%- JSON.stringify(students) %>;
+    const submissionsList = <%- JSON.stringify(submissions) %>;
+    
+    const events = assignments.map(a => {
+        const applicable = studentsList.filter(s => s.department === a.department && s.year == a.year);
+        const total = applicable.length;
+        let submitted = 0;
+        applicable.forEach(s => {
+            if (submissionsList.find(sub => sub.assignmentId == a.id && sub.studentId == s.id)) {
+                submitted++;
+            }
+        });
+        
+        let color = '#dc3545'; // red = none submitted
+        if (total > 0 && submitted === total) color = '#28a745'; // green = all submitted
+        else if (submitted > 0) color = '#fd7e14'; // orange = partial
+        
+        return {
+            title: a.title + ' (' + submitted + '/' + total + ')',
+            start: a.dueDate,
+            url: '/teacher/view/' + a.id,
+            color: color
+        };
+    });
+
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: events,
+        height: 600
+    });
+    calendar.render();
+});
+</script>
+
+</body>
+</html>

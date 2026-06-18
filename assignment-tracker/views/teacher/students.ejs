@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Students List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{ background:#f4f7fc; }
+        .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<% const config = (function(){ try { return JSON.parse(require('fs').readFileSync('./data/config.json')); } catch(e) { return {levels:['UG','PG'], departments:[], years:[]}; } })(); %>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between mb-4">
+        <h2>👥 Students List</h2>
+        <div>
+            <a href="<%= ref ? '/teacher?' + ref : '/teacher' %>" class="btn btn-secondary">🔙 Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card card-box p-4 mb-4">
+        <h4 class="mb-3">Filters</h4>
+        <form action="/teacher/students" method="GET">
+            <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
+            <div class="row">
+                <div class="col-md-3">
+                    <select class="form-select" name="level">
+                        <option>All Levels</option>
+                        <% config.levels.forEach(function(l) { %>
+                            <option value="<%= l %>" <%= filters.level === l ? 'selected' : '' %>><%= l %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="department">
+                        <option>All Departments</option>
+                        <% config.departments.forEach(function(d) { %>
+                            <option <%= filters.department === d ? 'selected' : '' %>><%= d %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" name="year">
+                        <option>All Years</option>
+                        <option value="1" <%= filters.year == '1' ? 'selected' : '' %>>I Year</option>
+                        <option value="2" <%= filters.year == '2' ? 'selected' : '' %>>II Year</option>
+                        <option value="3" <%= filters.year == '3' ? 'selected' : '' %>>III Year</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card card-box p-4">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Reg. Number</th>
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(students.length === 0) { %>
+                    <tr><td colspan="6" class="text-center text-muted">No students found</td></tr>
+                <% } else { %>
+                    <% students.forEach(function(s) { %>
+                    <tr>
+                        <td><%= s.username %></td>
+                        <td><%= s.name %></td>
+                        <td><%= s.level || 'UG' %></td>
+                        <td><%= s.department %></td>
+                        <td><%= s.year %></td>
+                        <td>
+                            <a href="/teacher/student/<%= s.id %>" class="btn btn-sm btn-info text-white">View Details</a>
+                        </td>
+                    </tr>
+                    <% }); %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

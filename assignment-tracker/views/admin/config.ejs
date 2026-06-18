@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>College Config</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{ background:#f4f7fc; }
+        .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between mb-4">
+        <h2>⚙ College Configuration</h2>
+        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary">🔙 Back to Dashboard</a>
+    </div>
+
+    <!-- Years / Levels -->
+    <div class="card card-box p-4 mb-4">
+        <h4 class="mb-3">Years & Levels</h4>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <select class="form-select" id="levelFilter" onchange="filterYears()">
+                    <option value="All">All Levels</option>
+                    <% config.levels.forEach(function(l) { %>
+                        <option value="<%= l %>"><%= l %></option>
+                    <% }); %>
+                </select>
+            </div>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Level</th>
+                    <th>Year</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="yearsTableBody">
+                <% config.years.sort((a,b) => a.level !== b.level ? (a.level > b.level ? 1 : -1) : a.year - b.year).forEach(function(y) { %>
+                <tr data-level="<%= y.level %>">
+                    <td><span class="badge bg-info"><%= y.level %></span></td>
+                    <td><%= y.year %></td>
+                    <td>
+                        <form action="/admin/config/year/remove" method="POST" style="display:inline;">
+                            <input type="hidden" name="level" value="<%= y.level %>">
+                            <input type="hidden" name="year" value="<%= y.year %>">
+                            <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
+                            <button class="btn btn-sm btn-danger" onclick="return confirm('Remove year?');">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <h5 class="mt-4">Add New Year</h5>
+        <form action="/admin/config/year/add" method="POST" class="row g-2">
+            <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
+            <div class="col-md-3">
+                <select class="form-select" name="level" required>
+                    <option value="">Select Level</option>
+                    <% config.levels.forEach(function(l) { %>
+                        <option value="<%= l %>"><%= l %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="number" class="form-control" name="year" placeholder="Year" min="1" max="6" required>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-success">Add Year</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Departments -->
+    <div class="card card-box p-4">
+        <h4 class="mb-3">Departments</h4>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" id="deptFilter" placeholder="Search departments..." oninput="filterDepartments()">
+            </div>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="deptTableBody">
+                <% config.departments.forEach(function(d) { %>
+                <tr data-dept="<%= d.toLowerCase() %>">
+                    <td><%= d %></td>
+                    <td>
+                        <form action="/admin/config/department/remove" method="POST" style="display:inline;">
+                            <input type="hidden" name="department" value="<%= d %>">
+                            <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
+                            <button class="btn btn-sm btn-danger" onclick="return confirm('Remove department?');">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <h5 class="mt-4">Add New Department</h5>
+        <form action="/admin/config/department/add" method="POST" class="row g-2">
+            <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="department" placeholder="Department name" required>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-success">Add Department</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function filterYears() {
+    const val = document.getElementById('levelFilter').value;
+    document.querySelectorAll('#yearsTableBody tr').forEach(function(row) {
+        row.style.display = val === 'All' || row.dataset.level === val ? '' : 'none';
+    });
+}
+function filterDepartments() {
+    const val = document.getElementById('deptFilter').value.toLowerCase();
+    document.querySelectorAll('#deptTableBody tr').forEach(function(row) {
+        row.style.display = !val || row.dataset.dept.includes(val) ? '' : 'none';
+    });
+}
+</script>
+
+</body>
+</html>

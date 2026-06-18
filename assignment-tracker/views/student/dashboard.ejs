@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body{ background:#f4f7fc; }
+    .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+</style>
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+<div class="d-flex justify-content-between mb-4">
+    <div>
+        <h2>🎓 Student Dashboard</h2>
+        <p>Welcome <b><%= user.name %></b></p>
+        <p class="text-muted"><%= user.level || 'UG' %> | <%= user.department %> | Year <%= user.year %></p>
+    </div>
+    <div>
+        <a href="/student/calendar" class="btn btn-primary me-2">📅 Calendar</a>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+</div>
+
+<div class="card card-box p-4">
+    <h4>My Assignments</h4>
+    
+    <table class="table table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Assigned By</th>
+                <th>Subject</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if(assignments.length === 0) { %>
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No assignments found</td>
+                </tr>
+            <% } else { %>
+                <% assignments.forEach(function(a) { %>
+                <tr>
+                    <td><%= a.title %></td>
+                    <td><%= a.assignedBy || 'Admin' %></td>
+                    <td><%= a.subject %></td>
+                    <td><%= new Date(a.dueDate).toLocaleDateString() %></td>
+                    <td>
+                        <% if(a.status === 'Submitted') { %>
+                            <span class="badge bg-success">Submitted <%= a.isLate ? '(Late)' : '' %></span>
+                        <% } else if(a.status === 'Pending') { %>
+                            <span class="badge bg-warning">Pending</span>
+                        <% } else if(a.status === 'Late') { %>
+                            <span class="badge bg-danger">Late</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <% if(a.status === 'Submitted') { %>
+                            <a href="<%= a.submission.link %>" target="_blank" class="btn btn-sm btn-info text-white">View Link</a>
+                            <button class="btn btn-sm btn-secondary" onclick="openSubmitModal(<%= a.id %>, '<%= a.title %>', '<%= a.submission.link %>')">Edit</button>
+                        <% } else { %>
+                            <button class="btn btn-sm btn-primary" onclick="openSubmitModal(<%= a.id %>, '<%= a.title %>', '')">Submit</button>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }); %>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<!-- Submit Modal -->
+<div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="submitModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="submitForm" method="POST" action="">
+        <div class="modal-header">
+          <h5 class="modal-title" id="submitModalLabel">Submit Assignment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Assignment:</strong> <span id="modalAssignmentTitle"></span></p>
+          <div class="mb-3">
+            <label class="form-label">Submission Link (Google Drive, Image URL, YouTube Video, etc.)</label>
+            <input type="url" class="form-control" name="link" id="modalSubmissionLink" placeholder="https://..." required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Save Submission</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function openSubmitModal(id, title, existingLink) {
+        document.getElementById('modalAssignmentTitle').innerText = title;
+        document.getElementById('modalSubmissionLink').value = existingLink;
+        document.getElementById('submitForm').action = '/student/submit/' + id;
+        var submitModal = new bootstrap.Modal(document.getElementById('submitModal'));
+        submitModal.show();
+    }
+</script>
+
+</body>
+</html>

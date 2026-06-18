@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "title": "DBMS Record",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "subject": "DBMS",
+    "dueDate": "2026-06-20",
+    "status": "Pending"
+  },
+  {
+    "id": 2,
+    "title": "Java Assignment",
+    "department": "BCA",
+    "year": 2,
+    "subject": "Java",
+    "dueDate": "2026-06-22",
+    "status": "Submitted"
+  },
+  {
+    "id": 3,
+    "title": "Operating Systems Assignment",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "subject": "Operating Systems",
+    "dueDate": "2026-06-25",
+    "status": "Late"
+  },
+  {
+    "id": 1781703959589,
+    "title": "NM",
+    "department": "B.Sc Computer Science",
+    "year": 1,
+    "subject": "NM",
+    "dueDate": "2026-06-19"
+  },
+  {
+    "id": 1781792418974,
+    "title": "NM",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "subject": "NM",
+    "dueDate": "2026-06-30",
+    "assignedBy": "Mr. Smith"
+  }
+]
