@@ -1,0 +1,101 @@
+[
+  {
+    "id": 2,
+    "username": "22BCS001",
+    "password": "1234",
+    "role": "student",
+    "name": "John",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 1781882065135,
+    "username": "3",
+    "password": "1234",
+    "role": "student",
+    "name": "c",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 1781883239102,
+    "username": "24",
+    "password": "1234",
+    "role": "student",
+    "name": "a",
+    "department": "B.Sc Computer Science",
+    "year": 2,
+    "level": "PG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 3,
+    "username": "22BCA001",
+    "password": "1234",
+    "role": "student",
+    "name": "Emma",
+    "department": "BCA",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 1781882053636,
+    "username": "2",
+    "password": "1234",
+    "role": "student",
+    "name": "b",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 1781882086832,
+    "username": "5",
+    "password": "1234",
+    "role": "student",
+    "name": "e",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 1781882041062,
+    "username": "1",
+    "password": "1234",
+    "role": "student",
+    "name": "a",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 1781882074836,
+    "username": "4",
+    "password": "1234",
+    "role": "student",
+    "name": "d",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  },
+  {
+    "id": 1781882097273,
+    "username": "2",
+    "password": "1234",
+    "role": "student",
+    "name": "a",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
+  }
+]

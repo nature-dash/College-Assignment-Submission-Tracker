@@ -17,29 +17,34 @@
             <a href="<%= ref ? '/admin/users?ref=' + encodeURIComponent(ref) : '/admin/users' %>" class="btn btn-secondary">🔙 Back</a>
         </div>
 
+        <% if (error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+
         <form method="POST" action="/admin/users/add">
+            <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
             <div class="mb-3">
                 <label>Role</label>
                 <select class="form-select" name="role" id="roleSelect" required>
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
+                    <option value="student" <%= form && form.role === 'student' ? 'selected' : '' %>>Student</option>
+                    <option value="teacher" <%= form && form.role === 'teacher' ? 'selected' : '' %>>Teacher</option>
                 </select>
             </div>
 
             <div class="mb-3">
                 <label>Username (ID / Registration Number)</label>
-                <input class="form-control" name="username" required>
+                <input class="form-control" name="username" value="<%= form ? form.username : '' %>" required>
             </div>
 
             <div class="mb-3">
                 <label>Full Name</label>
-                <input class="form-control" name="name" required>
+                <input class="form-control" name="name" value="<%= form ? form.name : '' %>" required>
             </div>
 
             <div class="mb-3">
                 <label>Password</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" name="password" id="passwordInput" value="1234" required>
+                    <input type="text" class="form-control" name="password" id="passwordInput" value="<%= form ? form.password : '1234' %>" required>
                     <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('passwordInput').value = Math.random().toString(36).slice(2, 8)">🎲</button>
                 </div>
             </div>
@@ -48,21 +53,21 @@
                 <label>Level</label>
                 <select class="form-select mb-3" name="level">
                     <% config.levels.forEach(function(l) { %>
-                        <option value="<%= l %>"><%= l %></option>
+                        <option value="<%= l %>" <%= form && form.level === l ? 'selected' : '' %>><%= l %></option>
                     <% }); %>
                 </select>
 
                 <label>Department</label>
                 <select class="form-select mb-3" name="department">
                     <% config.departments.forEach(function(d) { %>
-                        <option><%= d %></option>
+                        <option <%= form && form.department === d ? 'selected' : '' %>><%= d %></option>
                     <% }); %>
                 </select>
 
                 <label>Year</label>
                 <select class="form-select" name="year">
                     <% config.years.forEach(function(y) { %>
-                        <option value="<%= y.year %>"><%= y.level %> <%= y.year %></option>
+                        <option value="<%= y.year %>" <%= form && form.year == y.year ? 'selected' : '' %>><%= y.level %> <%= y.year %></option>
                     <% }); %>
                 </select>
             </div>

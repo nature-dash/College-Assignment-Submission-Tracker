@@ -63,9 +63,11 @@
 
     <!-- Buttons above filters -->
     <div class="mb-4">
-        <a href="/admin/config<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-warning me-2 text-white">⚙ Config</a>
-        <a href="/admin/users<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-success me-2">👥 Manage Users</a>
-        <a href="/admin/calendar<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-primary me-2">📅 Calendar</a>
+        <a href="/admin/config<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-warning me-2 text-white"> Config</a>
+        <a href="/admin/users<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-success me-2"> Manage Users</a>
+        <a href="/admin/promote<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-info me-2 text-white"> Promote</a>
+        <a href="/admin/passedout<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-secondary me-2"> Passed Out</a>
+        <a href="/admin/calendar<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-primary me-2"> Calendar</a>
     </div>
 
     <% if (!displayTasks) { %>
@@ -73,6 +75,11 @@
     <div class="card card-box p-4 mb-4">
         <h4 class="mb-3">Filters</h4>
         <form action="/admin" method="GET">
+            <% Object.keys(filters).forEach(function(key) { %>
+                <% if (key !== 'department' && key !== 'year' && key !== 'subject') { %>
+                    <input type="hidden" name="<%= key %>" value="<%= filters[key] %>">
+                <% } %>
+            <% }); %>
             <div class="row">
                 <div class="col-md-4">
                     <select class="form-select" name="department">
@@ -110,7 +117,8 @@
 
     <div class="card card-box p-4">
         <h4>All Assignments (Read-Only)</h4>
-        <table class="table table-hover mt-3">
+        <p class="text-muted mb-2">Showing <%= assignments.length %> assignment(s)</p>
+        <table class="table table-hover mt-2">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -161,6 +169,11 @@
         <h4 class="mb-3">Filters</h4>
         <form action="/admin" method="GET">
             <input type="hidden" name="taskStatus" value="<%= filters.taskStatus %>">
+            <% Object.keys(filters).forEach(function(key) { %>
+                <% if (key !== 'department' && key !== 'year' && key !== 'subject' && key !== 'taskStatus') { %>
+                    <input type="hidden" name="<%= key %>" value="<%= filters[key] %>">
+                <% } %>
+            <% }); %>
             <div class="row">
                 <div class="col-md-4">
                     <select class="form-select" name="department">
@@ -197,7 +210,8 @@
     </div>
 
     <div class="card card-box p-4">
-        <table class="table table-hover mt-3">
+        <p class="text-muted mb-2">Showing <%= displayTasks.length %> task(s)</p>
+        <table class="table table-hover mt-2">
             <thead>
                 <tr>
                     <th>Student Name</th>

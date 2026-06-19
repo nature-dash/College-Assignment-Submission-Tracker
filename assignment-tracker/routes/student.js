@@ -29,29 +29,42 @@ router.get("/", (req, res) => {
 
   const myAssignments = assignments.filter(a => a.department === user.department && a.year == user.year);
 
-  const assignmentsWithStatus = myAssignments.map(a => {
+  const { subject, status } = req.query;
+
+  let assignmentsWithStatus = myAssignments.map(a => {
     const sub = submissions.find(s => s.assignmentId == a.id && s.studentId == user.id);
-    let status = "Pending";
+    let stat = "Pending";
     let isLate = false;
     const dueDate = new Date(a.dueDate);
     dueDate.setHours(23, 59, 59, 999);
 
     if (sub) {
-      status = "Submitted";
+      stat = "Submitted";
       if (new Date(sub.submittedAt) > dueDate) {
         isLate = true;
       }
     } else {
       if (new Date() > dueDate) {
-        status = "Late";
+        stat = "Late";
       }
     }
-    return { ...a, status, isLate, submission: sub };
+    return { ...a, status: stat, isLate, submission: sub };
   });
+
+  if (subject && subject !== 'All Subjects') {
+    assignmentsWithStatus = assignmentsWithStatus.filter(a => a.subject === subject);
+  }
+  if (status && status !== 'All Statuses') {
+    assignmentsWithStatus = assignmentsWithStatus.filter(a => a.status === status);
+  }
+
+  const subjects = [...new Set(assignments.map(a => a.subject))].sort();
 
   res.render("student/dashboard", {
     user,
-    assignments: assignmentsWithStatus
+    assignments: assignmentsWithStatus,
+    queryFilters: req.query || {},
+    subjects
   });
 });
 

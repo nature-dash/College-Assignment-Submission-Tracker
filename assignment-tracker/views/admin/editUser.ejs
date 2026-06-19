@@ -17,7 +17,12 @@
             <a href="<%= ref ? '/admin/users?ref=' + encodeURIComponent(ref) : '/admin/users' %>" class="btn btn-secondary">🔙 Back</a>
         </div>
 
+        <% if (error) { %>
+            <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+
         <form method="POST" action="/admin/users/edit/<%= editUser.id %>">
+            <input type="hidden" name="ref" value="<%= ref %>">
             <div class="mb-3">
                 <label>Role</label>
                 <input class="form-control" value="<%= editUser.role === 'teacher' ? 'Teacher' : 'Student' %>" disabled>

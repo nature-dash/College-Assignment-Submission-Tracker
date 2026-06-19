@@ -120,12 +120,24 @@ router.get("/users", (req, res) => {
 router.get("/users/add", (req, res) => {
   const ref = req.query.ref || '';
   const config = readConfig();
-  res.render("admin/addUser", { ref, config });
+  res.render("admin/addUser", { ref, config, error: null, form: null });
 });
 
 // Add User (POST)
 router.post("/users/add", (req, res) => {
   let users = readData("users");
+  const config = readConfig();
+  const ref = req.body.ref || '';
+
+  const existing = users.find(u => u.username === req.body.username);
+  if (existing) {
+    return res.render("admin/addUser", {
+      ref, config,
+      error: `Username "${req.body.username}" is already taken by a ${existing.role}. Please use a different ID.`,
+      form: req.body
+    });
+  }
+
   const newUser = {
     id: Date.now(),
     username: req.body.username,
@@ -150,24 +162,35 @@ router.get("/users/edit/:id", (req, res) => {
   if (!editUser) return res.redirect("/admin/users");
   const ref = req.query.ref || '';
   const config = readConfig();
-  res.render("admin/editUser", { editUser, ref, config });
+  res.render("admin/editUser", { editUser, ref, config, error: null });
 });
 
 // Edit User (POST)
 router.post("/users/edit/:id", (req, res) => {
   let users = readData("users");
+  const config = readConfig();
+  const ref = req.body.ref || '';
   const index = users.findIndex(u => u.id == req.params.id);
-  if (index !== -1) {
-    users[index].username = req.body.username;
-    users[index].password = req.body.password;
-    users[index].name = req.body.name;
-    if (users[index].role === 'student') {
-      users[index].department = req.body.department;
-      users[index].year = Number(req.body.year);
-      users[index].level = req.body.level;
-    }
-    writeData("users", users);
+  if (index === -1) return res.redirect("/admin/users");
+
+  const editUser = users[index];
+  const existing = users.find(u => u.username === req.body.username && u.id != req.params.id);
+  if (existing) {
+    return res.render("admin/editUser", {
+      editUser, ref, config,
+      error: `Username "${req.body.username}" is already taken by a ${existing.role}. Please use a different ID.`
+    });
   }
+
+  users[index].username = req.body.username;
+  users[index].password = req.body.password;
+  users[index].name = req.body.name;
+  if (users[index].role === 'student') {
+    users[index].department = req.body.department;
+    users[index].year = Number(req.body.year);
+    users[index].level = req.body.level;
+  }
+  writeData("users", users);
   res.redirect("/admin/users");
 });
 
@@ -242,24 +265,118 @@ router.post("/config/department/remove", (req, res) => {
   res.redirect(ref ? "/admin/config?ref=" + encodeURIComponent(ref) : "/admin/config");
 });
 
-router.post("/config/year/add", (req, res) => {
+// Student Promotion
+router.get("/promote", (req, res) => {
+  const users = readData("users");
+  const students = users.filter(u => u.role === "student");
   const config = readConfig();
-  const level = req.body.level;
-  const year = Number(req.body.year);
-  if (level && year && !config.years.find(y => y.level === level && y.year === year)) {
-    config.years.push({ level, year });
-    writeConfig(config);
+  const passedOut = readData("passedout");
+
+  const { level, department } = req.query;
+
+  let filtered = students;
+  if (level) {
+    filtered = filtered.filter(s => (s.level || "UG") === level);
   }
-  const ref = req.body.ref || '';
-  res.redirect(ref ? "/admin/config?ref=" + encodeURIComponent(ref) : "/admin/config");
+  if (department && department !== "All Departments") {
+    filtered = filtered.filter(s => s.department === department);
+  }
+
+  const maxYear = {};
+  config.years.forEach(y => {
+    if (!maxYear[y.level] || y.year > maxYear[y.level]) {
+      maxYear[y.level] = y.year;
+    }
+  });
+
+  const preview = {};
+  let promoteCount = 0;
+  let passOutCount = 0;
+  filtered.forEach(s => {
+    const sLevel = s.level || "UG";
+    const sYear = s.year;
+    if (sYear < maxYear[sLevel]) {
+      const key = `${sLevel} Year ${sYear} → Year ${sYear + 1}`;
+      preview[key] = (preview[key] || 0) + 1;
+      promoteCount++;
+    } else {
+      const key = `${sLevel} Year ${sYear} → Passed Out (${new Date().getFullYear()})`;
+      preview[key] = (preview[key] || 0) + 1;
+      passOutCount++;
+    }
+  });
+
+  const ref = req.query.ref || '';
+  res.render("admin/promote", {
+    config, level, department, preview,
+    promoteCount, passOutCount, totalCount: filtered.length,
+    success: req.query.success, ref,
+    passedOutCount: passedOut.length
+  });
 });
 
-router.post("/config/year/remove", (req, res) => {
+router.post("/promote", (req, res) => {
+  let users = readData("users");
+  let passedOut = readData("passedout");
   const config = readConfig();
-  config.years = config.years.filter(y => !(y.level === req.body.level && y.year == req.body.year));
-  writeConfig(config);
+  const currentYear = new Date().getFullYear();
+
+  const { level, department } = req.body;
+
+  const maxYear = {};
+  config.years.forEach(y => {
+    if (!maxYear[y.level] || y.year > maxYear[y.level]) {
+      maxYear[y.level] = y.year;
+    }
+  });
+
+  const newUsers = [];
+  users.forEach(u => {
+    if (u.role !== "student") {
+      newUsers.push(u);
+      return;
+    }
+    const sLevel = u.level || "UG";
+    if (level && sLevel !== level) {
+      newUsers.push(u);
+      return;
+    }
+    if (department && department !== "All Departments" && u.department !== department) {
+      newUsers.push(u);
+      return;
+    }
+    if (u.year < maxYear[sLevel]) {
+      u.year = u.year + 1;
+      newUsers.push(u);
+    } else {
+      passedOut.push({
+        id: u.id,
+        username: u.username,
+        password: u.password,
+        role: "student",
+        name: u.name,
+        department: u.department,
+        year: u.year,
+        level: sLevel,
+        passedOutYear: currentYear
+      });
+    }
+  });
+
+  writeData("users", newUsers);
+  writeData("passedout", passedOut);
+
   const ref = req.body.ref || '';
-  res.redirect(ref ? "/admin/config?ref=" + encodeURIComponent(ref) : "/admin/config");
+  res.redirect(ref ? "/admin/promote?success=1&ref=" + encodeURIComponent(ref) : "/admin/promote?success=1");
+});
+
+// Passed Out Students
+router.get("/passedout", (req, res) => {
+  const passedOut = readData("passedout");
+  const config = readConfig();
+  const ref = req.query.ref || '';
+  passedOut.sort((a, b) => (b.passedOutYear || 0) - (a.passedOutYear || 0));
+  res.render("admin/passedout", { passedOut, config, ref });
 });
 
 module.exports = router;
