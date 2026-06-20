@@ -20,6 +20,8 @@
         .searchable-menu .dropdown-item { cursor:pointer; border-radius:4px; }
         .searchable-menu .dropdown-item:hover { background:#f0f0f0; }
         .searchable-menu .dropdown-item.active { background:#0d6efd; color:#fff; }
+
+
         @media (max-width: 768px) {
             .container { padding-left:12px; padding-right:12px; }
             .d-flex.mb-4 { flex-direction:column; gap:10px; }
@@ -27,6 +29,7 @@
             .mb-4 .btn { display:inline-block; margin-bottom:6px; }
             .table thead { display:none; }
             .table tbody tr { display:block; padding:12px; margin-bottom:10px; border-radius:14px; background:#fff; box-shadow:0px 3px 12px rgba(0,0,0,0.06); }
+
             .table tbody td { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border:none; border-bottom:1px solid rgba(0,0,0,0.04); }
             .table tbody td:last-child { border-bottom:none; }
             .table tbody td::before { content:attr(data-label); font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#8a8fa8; font-weight:600; }
@@ -47,7 +50,7 @@
             <h2>Admin Dashboard</h2>
             <p>Welcome, <b><%= user.name || user.username %></b></p>
         </div>
-        <div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
             <a href="/logout" class="btn btn-danger">Logout</a>
         </div>
     </div>
@@ -342,6 +345,23 @@
 </div>
 
 <script>
+function setTheme(theme) {
+    var dots = document.querySelectorAll('.theme-dot');
+    if (theme === 'dark') {
+        document.body.classList.add('dark');
+        localStorage.setItem('adminTeacherTheme', 'dark');
+    } else {
+        document.body.classList.remove('dark');
+        localStorage.setItem('adminTeacherTheme', 'light');
+    }
+    dots.forEach(function(d) { d.classList.remove('active'); });
+    document.querySelector('.theme-dot.dot-' + theme).classList.add('active');
+}
+(function initTheme() {
+    var saved = localStorage.getItem('adminTeacherTheme') || 'light';
+    setTheme(saved);
+})();
+
 function searchableToggle(btn) {
     const menu = btn.nextElementSibling;
     const isOpen = menu.classList.contains('show');
