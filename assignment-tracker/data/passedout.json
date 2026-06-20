@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "id": 1781961524122,
+    "username": "8119-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8119",
+    "department": "DS",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026,
+    "totalAssigned": 4,
+    "totalCompleted": 3
+  }
+]

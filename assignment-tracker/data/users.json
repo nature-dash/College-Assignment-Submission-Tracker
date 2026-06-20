@@ -14,14 +14,25 @@
     "name": "Teacher 13353"
   },
   {
-    "id": 1781961524122,
-    "username": "8119-ds",
+    "id": 1781962313904,
+    "username": "8008-ds",
     "password": "psvasc@123",
     "role": "student",
-    "name": "Student 8119",
+    "name": "Student 8008",
     "department": "DS",
     "level": "UG",
-    "semester": 1,
-    "year": 1
+    "semester": 5,
+    "year": 3
+  },
+  {
+    "id": 1781962340771,
+    "username": "8118-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Elakkiya G",
+    "department": "DS",
+    "level": "UG",
+    "semester": 5,
+    "year": 3
   }
 ]
