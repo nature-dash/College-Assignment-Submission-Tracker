@@ -1,17 +1,34 @@
 {
-  "levels": ["UG", "PG"],
-  "years": [
-    { "level": "UG", "year": 1, "semesters": 2 },
-    { "level": "UG", "year": 2, "semesters": 2 },
-    { "level": "UG", "year": 3, "semesters": 2 },
-    { "level": "PG", "year": 1, "semesters": 2 },
-    { "level": "PG", "year": 2, "semesters": 2 }
+  "levels": [
+    "UG",
+    "PG"
   ],
-  "departments": [
-    "B.Sc Computer Science",
-    "BCA",
-    "B.Com",
-    "BBA",
-    "B.Sc Mathematics"
-  ]
+  "years": [
+    {
+      "level": "UG",
+      "year": 1,
+      "semesters": 2
+    },
+    {
+      "level": "UG",
+      "year": 2,
+      "semesters": 2
+    },
+    {
+      "level": "UG",
+      "year": 3,
+      "semesters": 2
+    },
+    {
+      "level": "PG",
+      "year": 1,
+      "semesters": 2
+    },
+    {
+      "level": "PG",
+      "year": 2,
+      "semesters": 2
+    }
+  ],
+  "departments": []
 }

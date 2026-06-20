@@ -540,6 +540,8 @@
     .btn-filter { width: 100%; }
     .row.g-3 > div { margin-bottom: 8px; }
   }
+        .site-footer { text-align:center; padding:16px 12px; margin-top:40px; font-size:13px; color:#8a8fa8; border-top:1px solid rgba(0,0,0,0.06); }
+        @media (max-width:480px) { .site-footer { font-size:11px; padding:12px 8px; } }
 </style>
 </head>
 <body>
@@ -687,8 +689,12 @@
         <div class="modal-body">
           <p><strong>Assignment:</strong> <span id="modalAssignmentTitle"></span></p>
           <div class="mb-3">
-            <label class="form-label" style="color:var(--form-label);">Submission Link (Google Drive, Image URL, YouTube Video, etc.)</label>
-            <input type="url" class="form-control form-glass" name="link" id="modalSubmissionLink" placeholder="https://..." required>
+            <label class="form-label" style="color:var(--form-label);">Submission Link (optional)</label>
+            <input type="url" class="form-control form-glass" name="link" id="modalSubmissionLink" placeholder="https://...">
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" id="submitWithoutLink" onchange="toggleLinkInput()">
+              <label class="form-check-label" for="submitWithoutLink" style="color:var(--text-muted);font-size:14px;">Submit without link</label>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -840,14 +846,25 @@ function searchablePick(item) {
 document.addEventListener('click', function(e) { if (!e.target.closest('.searchable-select')) { document.querySelectorAll('.searchable-menu.show').forEach(function(m) { m.classList.remove('show'); }); } });
 </script>
 <script>
+function toggleLinkInput() {
+  var chk = document.getElementById('submitWithoutLink');
+  var inp = document.getElementById('modalSubmissionLink');
+  inp.disabled = chk.checked;
+  inp.required = !chk.checked;
+  if (chk.checked) inp.value = '';
+}
 function openSubmitModal(id, title, existingLink) {
   document.getElementById('modalAssignmentTitle').innerText = title;
-  document.getElementById('modalSubmissionLink').value = existingLink;
+  document.getElementById('modalSubmissionLink').value = existingLink || '';
+  document.getElementById('modalSubmissionLink').required = !existingLink;
+  document.getElementById('submitWithoutLink').checked = false;
+  document.getElementById('modalSubmissionLink').disabled = false;
   document.getElementById('submitForm').action = '/student/submit/' + id;
   var submitModal = new bootstrap.Modal(document.getElementById('submitModal'));
   submitModal.show();
 }
 </script>
 
+<footer class="site-footer">&copy; 2026 &#9670; Prince Shri Venkateshwara Arts and Science College &#9670; All rights reserved.</footer>
 </body>
 </html>
