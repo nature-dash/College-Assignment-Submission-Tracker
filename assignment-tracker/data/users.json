@@ -12,5 +12,126 @@
     "password": "1234",
     "role": "admin",
     "name": "Admin"
+  },
+  {
+    "id": 5,
+    "username": "UG1CS01",
+    "password": "1234",
+    "role": "student",
+    "name": "UG Y1 CS Student",
+    "department": "B.Sc Computer Science",
+    "year": 1,
+    "level": "UG",
+    "semester": 2
+  },
+  {
+    "id": 6,
+    "username": "UG2CS01",
+    "password": "1234",
+    "role": "student",
+    "name": "UG Y2 CS Student",
+    "department": "B.Sc Computer Science",
+    "year": 2,
+    "level": "UG",
+    "semester": 4
+  },
+  {
+    "id": 7,
+    "username": "UG3CS01",
+    "password": "1234",
+    "role": "student",
+    "name": "UG Y3 CS Student",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "semester": 6
+  },
+  {
+    "id": 8,
+    "username": "PG1CS01",
+    "password": "1234",
+    "role": "student",
+    "name": "PG Y1 CS Student",
+    "department": "B.Sc Computer Science",
+    "year": 1,
+    "level": "PG",
+    "semester": 2
+  },
+  {
+    "id": 9,
+    "username": "PG2CS01",
+    "password": "1234",
+    "role": "student",
+    "name": "PG Y2 CS Student",
+    "department": "B.Sc Computer Science",
+    "year": 2,
+    "level": "PG",
+    "semester": 4
+  },
+  {
+    "id": 10,
+    "username": "UG1BCA01",
+    "password": "1234",
+    "role": "student",
+    "name": "UG Y1 BCA Student",
+    "department": "BCA",
+    "year": 1,
+    "level": "UG",
+    "semester": 2
+  },
+  {
+    "id": 1781942107075,
+    "username": "6",
+    "password": "1234",
+    "role": "student",
+    "name": "d",
+    "department": "B.Sc Computer Science",
+    "year": 1,
+    "level": "UG",
+    "semester": 2
+  },
+  {
+    "id": 1781942150575,
+    "username": "1d",
+    "password": "1234",
+    "role": "student",
+    "name": "d",
+    "department": "B.Sc Computer Science",
+    "year": 1,
+    "level": "UG",
+    "semester": 2
+  },
+  {
+    "id": 1781942168373,
+    "username": "554",
+    "password": "1234",
+    "role": "student",
+    "name": "d",
+    "department": "B.Sc Computer Science",
+    "year": 3,
+    "level": "UG",
+    "semester": 6
+  },
+  {
+    "id": 1781942188875,
+    "username": "544",
+    "password": "1234",
+    "role": "student",
+    "name": "45545",
+    "department": "B.Sc Computer Science",
+    "year": 2,
+    "level": "UG",
+    "semester": 4
+  },
+  {
+    "id": 1781942214448,
+    "username": "56t4656",
+    "password": "1234",
+    "role": "student",
+    "name": "6",
+    "department": "B.Sc Computer Science",
+    "year": 1,
+    "level": "PG",
+    "semester": 2
   }
 ]

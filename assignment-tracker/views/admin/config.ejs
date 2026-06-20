@@ -12,13 +12,13 @@
 
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between mb-4">
-        <h2>⚙ College Configuration</h2>
-        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary">🔙 Back to Dashboard</a>
+        <h2>College Configuration</h2>
+        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 
     <!-- Years / Levels -->
     <div class="card card-box p-4 mb-4">
-        <h4 class="mb-3">Years & Levels</h4>
+        <h4 class="mb-3">Years & Degree Levels</h4>
 
         <div class="row mb-3">
             <div class="col-md-3">
@@ -34,8 +34,9 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>Level</th>
+                    <th>Degree Level</th>
                     <th>Year</th>
+                    <th>Semesters</th>
                 </tr>
             </thead>
             <tbody id="yearsTableBody">
@@ -43,6 +44,7 @@
                 <tr data-level="<%= y.level %>">
                     <td><span class="badge bg-info"><%= y.level %></span></td>
                     <td><%= y.year %></td>
+                    <td><%= y.semesters || 2 %></td>
                 </tr>
                 <% }); %>
             </tbody>

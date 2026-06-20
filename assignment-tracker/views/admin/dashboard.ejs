@@ -8,6 +8,17 @@
         .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
         .stat-card { text-decoration: none; color: inherit; display: block; }
         .stat-card:hover { transform: translateY(-5px); transition: 0.3s; }
+        .searchable-select { position:relative; width:100%; }
+        .searchable-select .form-select { cursor:pointer; text-align:left; }
+        .searchable-menu {
+            display:none; position:absolute; top:100%; left:0; right:0; z-index:1000;
+            background:#fff; border:1px solid #dee2e6; border-radius:6px; padding:8px;
+            max-height:300px; overflow-y:auto; box-shadow:0 6px 16px rgba(0,0,0,0.15);
+        }
+        .searchable-menu.show { display:block; }
+        .searchable-menu .dropdown-item { cursor:pointer; border-radius:4px; }
+        .searchable-menu .dropdown-item:hover { background:#f0f0f0; }
+        .searchable-menu .dropdown-item.active { background:#0d6efd; color:#fff; }
     </style>
 </head>
 <body>
@@ -16,7 +27,7 @@
 
     <div class="d-flex justify-content-between mb-4">
         <div>
-            <h2>🛡️ Admin Dashboard</h2>
+            <h2>Admin Dashboard</h2>
             <p>Welcome, <b><%= user.name || user.username %></b></p>
         </div>
         <div>
@@ -63,11 +74,11 @@
 
     <!-- Buttons above filters -->
     <div class="mb-4">
-        <a href="/admin/config<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-warning me-2 text-white"> Config</a>
-        <a href="/admin/users<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-success me-2"> Manage Users</a>
-        <a href="/admin/promote<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-info me-2 text-white"> Promote</a>
-        <a href="/admin/passedout<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-secondary me-2"> Passed Out</a>
-        <a href="/admin/calendar<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-primary me-2"> Calendar</a>
+        <a href="/admin/config<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-warning me-2 text-white">Department Management</a>
+        <a href="/admin/users<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-success me-2">User Management</a>
+        <a href="/admin/promote<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-info me-2 text-white">Student Promotion</a>
+        <a href="/admin/passedout<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-secondary me-2">Passed Out Students</a>
+        <a href="/admin/calendar<%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>" class="btn btn-primary me-2">Assignment Calendar</a>
     </div>
 
     <% if (!displayTasks) { %>
@@ -76,37 +87,63 @@
         <h4 class="mb-3">Filters</h4>
         <form action="/admin" method="GET">
             <% Object.keys(filters).forEach(function(key) { %>
-                <% if (key !== 'department' && key !== 'year' && key !== 'subject') { %>
+                <% if (key !== 'department' && key !== 'level' && key !== 'year' && key !== 'subject') { %>
                     <input type="hidden" name="<%= key %>" value="<%= filters[key] %>">
                 <% } %>
             <% }); %>
             <div class="row">
-                <div class="col-md-4">
-                    <select class="form-select" name="department">
-                        <option>All Departments</option>
-                        <option <%= filters.department === 'B.Sc Computer Science' ? 'selected' : '' %>>B.Sc Computer Science</option>
-                        <option <%= filters.department === 'BCA' ? 'selected' : '' %>>BCA</option>
-                        <option <%= filters.department === 'B.Com' ? 'selected' : '' %>>B.Com</option>
-                        <option <%= filters.department === 'BBA' ? 'selected' : '' %>>BBA</option>
-                        <option <%= filters.department === 'B.Sc Mathematics' ? 'selected' : '' %>>B.Sc Mathematics</option>
+                <div class="col-md-3">
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.department || 'All Departments' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Departments</button>
+                            <% (config.departments || []).forEach(function(d) { %>
+                                <button type="button" class="dropdown-item<%= filters.department === d ? ' active' : '' %>" data-value="<%= d %>" onclick="searchablePick(this)"><%= d %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="department" value="<%= filters.department || '' %>">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="level">
+                        <option value="">All Levels</option>
+                        <option value="UG" <%= filters.level === 'UG' ? 'selected' : '' %>>UG</option>
+                        <option value="PG" <%= filters.level === 'PG' ? 'selected' : '' %>>PG</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" name="year">
-                        <option>All Years</option>
-                        <option value="1" <%= filters.year == '1' ? 'selected' : '' %>>I Year</option>
-                        <option value="2" <%= filters.year == '2' ? 'selected' : '' %>>II Year</option>
-                        <option value="3" <%= filters.year == '3' ? 'selected' : '' %>>III Year</option>
-                    </select>
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.year ? 'Year ' + filters.year : 'All Years' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Years</button>
+                            <% const yrOpts = [...new Set((config.years || []).map(y => y.year))].sort(); %>
+                            <% yrOpts.forEach(function(y) { %>
+                                <button type="button" class="dropdown-item<%= filters.year == y ? ' active' : '' %>" data-value="<%= y %>" onclick="searchablePick(this)">Year <%= y %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="year" value="<%= filters.year || '' %>">
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" name="subject">
-                        <option>All Subjects</option>
-                        <option <%= filters.subject === 'DBMS' ? 'selected' : '' %>>DBMS</option>
-                        <option <%= filters.subject === 'Java' ? 'selected' : '' %>>Java</option>
-                        <option <%= filters.subject === 'Operating Systems' ? 'selected' : '' %>>Operating Systems</option>
-                        <option <%= filters.subject === 'English' ? 'selected' : '' %>>English</option>
-                    </select>
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.subject || 'All Subjects' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Subjects</button>
+                            <% (allSubjects || []).forEach(function(s) { %>
+                                <button type="button" class="dropdown-item<%= filters.subject === s ? ' active' : '' %>" data-value="<%= s %>" onclick="searchablePick(this)"><%= s %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="subject" value="<%= filters.subject || '' %>">
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
@@ -124,6 +161,7 @@
                     <th>Title</th>
                     <th>Assigned By</th>
                     <th>Department</th>
+                    <th>Degree Level</th>
                     <th>Year</th>
                     <th>Subject</th>
                     <th>Due Date</th>
@@ -132,13 +170,14 @@
             </thead>
             <tbody>
                 <% if(assignments.length === 0) { %>
-                    <tr><td colspan="7" class="text-center text-muted">No assignments found</td></tr>
+                    <tr><td colspan="8" class="text-center text-muted">No assignments found</td></tr>
                 <% } else { %>
                     <% assignments.forEach(function(a) { %>
                     <tr>
                         <td><a href="/admin/view/<%= a.id %><%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>"><%= a.title %></a></td>
                         <td><%= a.assignedBy || 'Admin' %></td>
                         <td><%= a.department %></td>
+                        <td><%= a.level || 'UG' %></td>
                         <td><%= a.year %></td>
                         <td><%= a.subject %></td>
                         <td><%= new Date(a.dueDate).toLocaleDateString() %></td>
@@ -162,7 +201,7 @@
 
     <div class="mb-4 d-flex justify-content-between align-items-center">
         <h4>Showing <%= filters.taskStatus %> Tasks (<%= displayTasks.length %>)</h4>
-        <a href="/admin<%= dashQuery ? '?' + dashQuery : '' %>" class="btn btn-secondary">🔙 Back to Overview</a>
+        <a href="/admin<%= dashQuery ? '?' + dashQuery : '' %>" class="btn btn-secondary">Back to Overview</a>
     </div>
 
     <div class="card card-box p-4 mb-4">
@@ -170,37 +209,63 @@
         <form action="/admin" method="GET">
             <input type="hidden" name="taskStatus" value="<%= filters.taskStatus %>">
             <% Object.keys(filters).forEach(function(key) { %>
-                <% if (key !== 'department' && key !== 'year' && key !== 'subject' && key !== 'taskStatus') { %>
+                <% if (key !== 'department' && key !== 'level' && key !== 'year' && key !== 'subject' && key !== 'taskStatus') { %>
                     <input type="hidden" name="<%= key %>" value="<%= filters[key] %>">
                 <% } %>
             <% }); %>
             <div class="row">
                 <div class="col-md-4">
-                    <select class="form-select" name="department">
-                        <option>All Departments</option>
-                        <option <%= filters.department === 'B.Sc Computer Science' ? 'selected' : '' %>>B.Sc Computer Science</option>
-                        <option <%= filters.department === 'BCA' ? 'selected' : '' %>>BCA</option>
-                        <option <%= filters.department === 'B.Com' ? 'selected' : '' %>>B.Com</option>
-                        <option <%= filters.department === 'BBA' ? 'selected' : '' %>>BBA</option>
-                        <option <%= filters.department === 'B.Sc Mathematics' ? 'selected' : '' %>>B.Sc Mathematics</option>
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.department || 'All Departments' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Departments</button>
+                            <% (config.departments || []).forEach(function(d) { %>
+                                <button type="button" class="dropdown-item<%= filters.department === d ? ' active' : '' %>" data-value="<%= d %>" onclick="searchablePick(this)"><%= d %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="department" value="<%= filters.department || '' %>">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="level">
+                        <option value="">All Levels</option>
+                        <option value="UG" <%= filters.level === 'UG' ? 'selected' : '' %>>UG</option>
+                        <option value="PG" <%= filters.level === 'PG' ? 'selected' : '' %>>PG</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" name="year">
-                        <option>All Years</option>
-                        <option value="1" <%= filters.year == '1' ? 'selected' : '' %>>I Year</option>
-                        <option value="2" <%= filters.year == '2' ? 'selected' : '' %>>II Year</option>
-                        <option value="3" <%= filters.year == '3' ? 'selected' : '' %>>III Year</option>
-                    </select>
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.year ? 'Year ' + filters.year : 'All Years' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Years</button>
+                            <% const yrOpts = [...new Set((config.years || []).map(y => y.year))].sort(); %>
+                            <% yrOpts.forEach(function(y) { %>
+                                <button type="button" class="dropdown-item<%= filters.year == y ? ' active' : '' %>" data-value="<%= y %>" onclick="searchablePick(this)">Year <%= y %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="year" value="<%= filters.year || '' %>">
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" name="subject">
-                        <option>All Subjects</option>
-                        <option <%= filters.subject === 'DBMS' ? 'selected' : '' %>>DBMS</option>
-                        <option <%= filters.subject === 'Java' ? 'selected' : '' %>>Java</option>
-                        <option <%= filters.subject === 'Operating Systems' ? 'selected' : '' %>>Operating Systems</option>
-                        <option <%= filters.subject === 'English' ? 'selected' : '' %>>English</option>
-                    </select>
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.subject || 'All Subjects' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Subjects</button>
+                            <% (allSubjects || []).forEach(function(s) { %>
+                                <button type="button" class="dropdown-item<%= filters.subject === s ? ' active' : '' %>" data-value="<%= s %>" onclick="searchablePick(this)"><%= s %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="subject" value="<%= filters.subject || '' %>">
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
@@ -259,5 +324,47 @@
 
 </div>
 
+<script>
+function searchableToggle(btn) {
+    const menu = btn.nextElementSibling;
+    const isOpen = menu.classList.contains('show');
+    document.querySelectorAll('.searchable-menu.show').forEach(function(m) {
+        if (m !== menu) m.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+    if (!isOpen) {
+        var inp = menu.querySelector('input');
+        if (inp) { inp.value = ''; inp.focus(); }
+        menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.style.display = ''; });
+    }
+}
+
+function searchableFilter(inp) {
+    var val = inp.value.toLowerCase();
+    inp.parentNode.querySelectorAll('.dropdown-item').forEach(function(it) {
+        it.style.display = it.textContent.toLowerCase().indexOf(val) > -1 ? '' : 'none';
+    });
+}
+
+function searchablePick(item) {
+    var menu = item.closest('.searchable-menu');
+    var container = menu.closest('.searchable-select');
+    var btn = container.querySelector('.dropdown-toggle');
+    var hidden = container.querySelector('input[type="hidden"]');
+    btn.textContent = item.textContent;
+    hidden.value = item.getAttribute('data-value') || '';
+    menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.classList.remove('active'); });
+    item.classList.add('active');
+    menu.classList.remove('show');
+    var form = container.closest('form');
+    if (form) form.submit();
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.searchable-select')) {
+        document.querySelectorAll('.searchable-menu.show').forEach(function(m) { m.classList.remove('show'); });
+    }
+});
+</script>
 </body>
 </html>

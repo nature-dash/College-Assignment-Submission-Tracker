@@ -48,7 +48,9 @@ router.get("/", (req, res) => {
         stat = "Late";
       }
     }
-    return { ...a, status: stat, isLate, submission: sub };
+
+    const order = stat === "Late" ? 0 : stat === "Pending" ? 1 : 2;
+    return { ...a, status: stat, isLate, submission: sub, sortOrder: order };
   });
 
   if (subject && subject !== 'All Subjects') {
@@ -58,13 +60,21 @@ router.get("/", (req, res) => {
     assignmentsWithStatus = assignmentsWithStatus.filter(a => a.status === status);
   }
 
-  const subjects = [...new Set(assignments.map(a => a.subject))].sort();
+  assignmentsWithStatus.sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const subjects = [...new Set(myAssignments.map(a => a.subject))].sort();
+
+  if (!req.session.tailColor) {
+    const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff6b9d', '#c084fc', '#fb923c', '#2dd4bf'];
+    req.session.tailColor = colors[Math.floor(Math.random() * colors.length)];
+  }
 
   res.render("student/dashboard", {
     user,
     assignments: assignmentsWithStatus,
     queryFilters: req.query || {},
-    subjects
+    subjects,
+    tailColor: req.session.tailColor
   });
 });
 

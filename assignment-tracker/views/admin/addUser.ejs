@@ -13,8 +13,8 @@
 <div class="container mt-5">
     <div class="card card-box p-4 mx-auto" style="max-width: 600px;">
         <div class="d-flex justify-content-between mb-3">
-            <h2>➕ Add User</h2>
-            <a href="<%= ref ? '/admin/users?ref=' + encodeURIComponent(ref) : '/admin/users' %>" class="btn btn-secondary">🔙 Back</a>
+            <h2>Add User</h2>
+            <a href="<%= ref ? '/admin/users?ref=' + encodeURIComponent(ref) : '/admin/users' %>" class="btn btn-secondary">Back</a>
         </div>
 
         <% if (error) { %>
@@ -29,6 +29,9 @@
                     <option value="student" <%= form && form.role === 'student' ? 'selected' : '' %>>Student</option>
                     <option value="teacher" <%= form && form.role === 'teacher' ? 'selected' : '' %>>Teacher</option>
                 </select>
+                <div class="mt-2 text-muted">
+                    <small>Semester will be auto-assigned based on existing students.</small>
+                </div>
             </div>
 
             <div class="mb-3">
@@ -45,12 +48,12 @@
                 <label>Password</label>
                 <div class="input-group">
                     <input type="text" class="form-control" name="password" id="passwordInput" value="<%= form ? form.password : '1234' %>" required>
-                    <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('passwordInput').value = Math.random().toString(36).slice(2, 8)">🎲</button>
+                    <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('passwordInput').value = Math.random().toString(36).slice(2, 8)">Random</button>
                 </div>
             </div>
 
             <div class="mb-3" id="studentFields">
-                <label>Level</label>
+                <label>Degree Level</label>
                 <select class="form-select mb-3" name="level">
                     <% config.levels.forEach(function(l) { %>
                         <option value="<%= l %>" <%= form && form.level === l ? 'selected' : '' %>><%= l %></option>
@@ -70,6 +73,9 @@
                         <option value="<%= y.year %>" <%= form && form.year == y.year ? 'selected' : '' %>><%= y.level %> <%= y.year %></option>
                     <% }); %>
                 </select>
+                <div class="mt-2 text-muted">
+                    <small>Semester will be auto-assigned based on existing students.</small>
+                </div>
             </div>
 
             <button class="btn btn-success">Save User</button>

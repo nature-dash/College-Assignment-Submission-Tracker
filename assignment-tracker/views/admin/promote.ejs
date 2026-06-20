@@ -12,9 +12,9 @@
 
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between mb-4">
-        <h2> Student Promotion</h2>
-        <a href="/admin/passedout<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary me-2"> Passed Out</a>
-        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary">Back to Dashboard</a>
+        <h2>Student Promotion</h2>
+        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary me-2">Back to Dashboard</a>
+        <a href="/admin/passedout<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary">Passed Out Students</a>
     </div>
 
     <% if (success) { %>
@@ -53,7 +53,7 @@
         <form action="/admin/promote" method="GET" class="row g-3">
             <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
             <div class="col-md-4">
-                <label class="form-label">Level</label>
+                <label class="form-label">Degree Level</label>
                 <select class="form-select" name="level">
                     <option value="">All Levels</option>
                     <% config.levels.forEach(function(l) { %>
@@ -109,8 +109,16 @@
     <div class="card card-box p-4">
         <h4 class="mb-3">Promotion Rules</h4>
         <ul>
-            <li><strong>UG</strong> (3 Years): Year 1  Year 2, Year 2  Year 3, Year 3  Passed Out</li>
-            <li><strong>PG</strong> (2 Years): Year 1  Year 2, Year 2  Passed Out</li>
+            <% config.levels.forEach(function(l) { %>
+                <% const years = config.years.filter(y => y.level === l).sort((a,b) => a.year - b.year); %>
+                <% if (years.length > 0) { %>
+                    <% const totalSemesters = years.reduce((sum, y) => sum + (y.semesters || 2), 0); %>
+                    <% const yearLabels = years.map(y => `Year ${y.year} (${y.semesters || 2} Sem)`).join(' → '); %>
+                    <li><strong><%= l %></strong> (<%= years.length %> Years, <%= totalSemesters %> Semesters): <%= yearLabels %> → Passed Out</li>
+                <% } %>
+            <% }); %>
+            <li>Each promotion click advances the student by one semester.</li>
+            <li>When a student completes the final semester of their current year, they advance to the next year (or pass out if in the final year).</li>
             <li>Passed out students are moved to a separate archive with the current year recorded as their pass-out year.</li>
             <li>Teachers will only see active (non-passed-out) students.</li>
             <li>This action <strong>cannot be undone</strong> automatically.</li>

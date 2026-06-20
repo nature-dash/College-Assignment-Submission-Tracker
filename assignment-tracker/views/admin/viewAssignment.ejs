@@ -12,14 +12,15 @@
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between mb-4">
-        <h2>📄 <%= assignment.title %></h2>
-        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary">🔙 Back to Dashboard</a>
+        <h2><%= assignment.title %></h2>
+        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 
     <div class="card card-box p-4 mb-4">
         <h4>Details</h4>
         <p><strong>Subject:</strong> <%= assignment.subject %></p>
         <p><strong>Department:</strong> <%= assignment.department %></p>
+        <p><strong>Degree Level:</strong> <%= assignment.level || 'UG' %></p>
         <p><strong>Year:</strong> <%= assignment.year %></p>
         <p><strong>Due Date:</strong> <%= new Date(assignment.dueDate).toLocaleDateString() %></p>
         <p><strong>Assigned By:</strong> <%= assignment.assignedBy || 'Admin' %></p>

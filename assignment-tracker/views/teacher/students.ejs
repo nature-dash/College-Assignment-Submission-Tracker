@@ -6,18 +6,29 @@
     <style>
         body{ background:#f4f7fc; }
         .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+        .searchable-select { position:relative; width:100%; }
+        .searchable-select .form-select { cursor:pointer; text-align:left; }
+        .searchable-menu {
+            display:none; position:absolute; top:100%; left:0; right:0; z-index:1000;
+            background:#fff; border:1px solid #dee2e6; border-radius:6px; padding:8px;
+            max-height:300px; overflow-y:auto; box-shadow:0 6px 16px rgba(0,0,0,0.15);
+        }
+        .searchable-menu.show { display:block; }
+        .searchable-menu .dropdown-item { cursor:pointer; border-radius:4px; }
+        .searchable-menu .dropdown-item:hover { background:#f0f0f0; }
+        .searchable-menu .dropdown-item.active { background:#0d6efd; color:#fff; }
     </style>
 </head>
 <body>
 
-<% const config = (function(){ try { return JSON.parse(require('fs').readFileSync('./data/config.json')); } catch(e) { return {levels:['UG','PG'], departments:[], years:[]}; } })(); %>
+
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between mb-4">
-        <h2>👥 Students List</h2>
+        <h2>Students List</h2>
         <div>
-            <a href="/teacher/students/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary me-2">📥 Download Excel</a>
-            <a href="<%= ref ? '/teacher?' + ref : '/teacher' %>" class="btn btn-secondary">🔙 Back to Dashboard</a>
+            <a href="<%= ref ? '/teacher?' + ref : '/teacher' %>" class="btn btn-secondary me-2">Back to Dashboard</a>
+            <a href="/teacher/students/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary">Download Excel</a>
         </div>
     </div>
 
@@ -39,19 +50,27 @@
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <select class="form-select" name="department">
-                        <option>All Departments</option>
-                        <% config.departments.forEach(function(d) { %>
-                            <option <%= filters.department === d ? 'selected' : '' %>><%= d %></option>
-                        <% }); %>
-                    </select>
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.department || 'All Departments' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Departments</button>
+                            <% config.departments.forEach(function(d) { %>
+                                <button type="button" class="dropdown-item<%= filters.department === d ? ' active' : '' %>" data-value="<%= d %>" onclick="searchablePick(this)"><%= d %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="department" value="<%= filters.department || '' %>">
+                    </div>
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" name="year">
                         <option>All Years</option>
-                        <option value="1" <%= filters.year == '1' ? 'selected' : '' %>>I Year</option>
-                        <option value="2" <%= filters.year == '2' ? 'selected' : '' %>>II Year</option>
-                        <option value="3" <%= filters.year == '3' ? 'selected' : '' %>>III Year</option>
+                        <% const yrOpts = [...new Set((config.years || []).map(y => y.year))].sort(); %>
+                        <% yrOpts.forEach(function(y) { %>
+                            <option value="<%= y %>" <%= filters.year == y ? 'selected' : '' %>><%= y %></option>
+                        <% }); %>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -68,15 +87,16 @@
                 <tr>
                     <th>Reg. Number</th>
                     <th>Name</th>
-                    <th>Level</th>
+                    <th>Degree Level</th>
                     <th>Department</th>
                     <th>Year</th>
+                    <th>Semester</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <% if(students.length === 0) { %>
-                    <tr><td colspan="6" class="text-center text-muted">No students found</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted">No students found</td></tr>
                 <% } else { %>
                     <% students.forEach(function(s) { %>
                     <tr>
@@ -85,6 +105,7 @@
                         <td><%= s.level || 'UG' %></td>
                         <td><%= s.department %></td>
                         <td><%= s.year %></td>
+                        <td><%= s.semester || '-' %></td>
                         <td>
                             <a href="/teacher/student/<%= s.id %>" class="btn btn-sm btn-info text-white">View Details</a>
                         </td>
@@ -96,5 +117,32 @@
     </div>
 </div>
 
+<script>
+function searchableToggle(btn) {
+    var menu = btn.nextElementSibling;
+    var isOpen = menu.classList.contains('show');
+    document.querySelectorAll('.searchable-menu.show').forEach(function(m) { if (m !== menu) m.classList.remove('show'); });
+    menu.classList.toggle('show');
+    if (!isOpen) { menu.querySelector('input').value = ''; menu.querySelector('input').focus(); menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.style.display = ''; }); }
+}
+function searchableFilter(inp) {
+    var val = inp.value.toLowerCase();
+    inp.parentNode.querySelectorAll('.dropdown-item').forEach(function(it) { it.style.display = it.textContent.toLowerCase().indexOf(val) > -1 ? '' : 'none'; });
+}
+function searchablePick(item) {
+    var menu = item.closest('.searchable-menu');
+    var container = menu.closest('.searchable-select');
+    var btn = container.querySelector('.dropdown-toggle');
+    var hidden = container.querySelector('input[type="hidden"]');
+    btn.textContent = item.textContent;
+    hidden.value = item.getAttribute('data-value') || '';
+    menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.classList.remove('active'); });
+    item.classList.add('active');
+    menu.classList.remove('show');
+    var form = container.closest('form');
+    if (form) form.submit();
+}
+document.addEventListener('click', function(e) { if (!e.target.closest('.searchable-select')) { document.querySelectorAll('.searchable-menu.show').forEach(function(m) { m.classList.remove('show'); }); } });
+</script>
 </body>
 </html>

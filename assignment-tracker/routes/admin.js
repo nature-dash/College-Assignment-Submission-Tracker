@@ -26,18 +26,24 @@ router.use((req, res, next) => {
 
 // Dashboard
 router.get("/", (req, res) => {
-  let assignments = readData("assignments");
+  const allAssignments = readData("assignments");
+  let assignments = [...allAssignments];
   const users = readData("users");
   const students = users.filter(u => u.role === "student");
   const submissions = readData("submissions");
+  const config = readConfig();
+  const allSubjects = [...new Set(allAssignments.map(a => a.subject))].sort();
 
-  const { department, year, subject, taskStatus } = req.query;
+  const { department, year, level, subject, taskStatus } = req.query;
 
   if (department && department !== 'All Departments') {
     assignments = assignments.filter(a => a.department === department);
   }
   if (year && year !== 'All Years') {
     assignments = assignments.filter(a => a.year == year);
+  }
+  if (level && level !== 'All Levels') {
+    assignments = assignments.filter(a => (a.level || 'UG') === level);
   }
   if (subject && subject !== 'All Subjects') {
     assignments = assignments.filter(a => a.subject === subject);
@@ -50,7 +56,7 @@ router.get("/", (req, res) => {
   const allTasks = [];
 
   const assignmentsWithProgress = assignments.map(a => {
-    const applicableStudents = students.filter(s => s.department === a.department && s.year == a.year);
+    const applicableStudents = students.filter(s => s.department === a.department && s.year == a.year && (s.level || 'UG') === (a.level || 'UG'));
     const totalStudents = applicableStudents.length;
     let submittedStudents = 0;
     
@@ -85,6 +91,9 @@ router.get("/", (req, res) => {
     if (subject && subject !== 'All Subjects') {
       displayTasks = displayTasks.filter(t => t.assignment.subject === subject);
     }
+    if (level && level !== 'All Levels') {
+      displayTasks = displayTasks.filter(t => (t.assignment.level || 'UG') === level);
+    }
   }
 
   res.render("admin/dashboard", {
@@ -95,13 +104,16 @@ router.get("/", (req, res) => {
     submittedCount,
     pendingCount,
     lateCount,
-    filters: req.query || {}
+    filters: req.query || {},
+    config,
+    allSubjects
   });
 });
 
 // Users Management
 router.get("/users", (req, res) => {
   const users = readData("users");
+  const config = readConfig();
   const { role, level, department } = req.query;
   let filteredUsers = users.filter(u => u.role !== 'admin');
   if (role && role !== 'All Roles') {
@@ -114,7 +126,7 @@ router.get("/users", (req, res) => {
     filteredUsers = filteredUsers.filter(u => u.department === department);
   }
   const ref = req.query.ref || '';
-  res.render("admin/users", { users: filteredUsers, filters: req.query || {}, ref });
+  res.render("admin/users", { users: filteredUsers, config, filters: req.query || {}, ref });
 });
 
 // Download Users as Excel
@@ -147,6 +159,7 @@ router.get("/users/download", (req, res) => {
     if (u.role === 'student') {
       const assigned = assignments.filter(a => a.department === u.department && a.year == u.year).length;
       const completed = submissions.filter(s => s.studentId == u.id).length;
+      row["Semester"] = u.semester || '-';
       row["Assessments Assigned"] = assigned;
       row["Assessments Completed"] = completed;
     } else if (u.role === 'teacher') {
@@ -236,11 +249,20 @@ router.post("/users/add", (req, res) => {
   const config = readConfig();
   const ref = req.body.ref || '';
 
+  const passedOut = readData("passedout");
   const existing = users.find(u => u.username === req.body.username);
+  const existingPassedOut = passedOut.find(u => u.username === req.body.username);
   if (existing) {
     return res.render("admin/addUser", {
       ref, config,
       error: `Username "${req.body.username}" is already taken by a ${existing.role}. Please use a different ID.`,
+      form: req.body
+    });
+  }
+  if (existingPassedOut) {
+    return res.render("admin/addUser", {
+      ref, config,
+      error: `Username "${req.body.username}" is already taken by a passed out student. Please use a different ID.`,
       form: req.body
     });
   }
@@ -256,6 +278,7 @@ router.post("/users/add", (req, res) => {
     newUser.department = req.body.department;
     newUser.year = Number(req.body.year);
     newUser.level = req.body.level;
+    newUser.semester = inferSemester(Number(req.body.year), req.body.level, users, config);
   }
   users.push(newUser);
   writeData("users", users);
@@ -281,11 +304,19 @@ router.post("/users/edit/:id", (req, res) => {
   if (index === -1) return res.redirect("/admin/users");
 
   const editUser = users[index];
+  const passedOut = readData("passedout");
   const existing = users.find(u => u.username === req.body.username && u.id != req.params.id);
+  const existingPassedOut = passedOut.find(u => u.username === req.body.username);
   if (existing) {
     return res.render("admin/editUser", {
       editUser, ref, config,
       error: `Username "${req.body.username}" is already taken by a ${existing.role}. Please use a different ID.`
+    });
+  }
+  if (existingPassedOut) {
+    return res.render("admin/editUser", {
+      editUser, ref, config,
+      error: `Username "${req.body.username}" is already taken by a passed out student. Please use a different ID.`
     });
   }
 
@@ -296,6 +327,7 @@ router.post("/users/edit/:id", (req, res) => {
     users[index].department = req.body.department;
     users[index].year = Number(req.body.year);
     users[index].level = req.body.level;
+    users[index].semester = inferSemester(Number(req.body.year), req.body.level, users, config);
   }
   writeData("users", users);
   res.redirect("/admin/users");
@@ -326,7 +358,7 @@ router.get("/view/:id", (req, res) => {
   if (!assignment) return res.redirect("/admin");
   
   const users = readData("users");
-  const students = users.filter(u => u.role === "student" && u.department === assignment.department && u.year == assignment.year);
+  const students = users.filter(u => u.role === "student" && u.department === assignment.department && u.year == assignment.year && (u.level || 'UG') === (assignment.level || 'UG'));
   const submissions = readData("submissions");
   
   const studentSubmissions = students.map(s => {
@@ -345,6 +377,15 @@ function readConfig() {
 }
 function writeConfig(data) {
   fs.writeFileSync('./data/config.json', JSON.stringify(data, null, 2));
+}
+
+function inferSemester(year, level, users, config) {
+  const semPerYear = config.years.find(y => y.level === level)?.semesters || 2;
+  const defaultSem = (year - 1) * semPerYear + 1;
+  const existingSameYear = users.filter(u => u.role === 'student' && u.year === year && (u.level || 'UG') === level);
+  if (existingSameYear.length === 0) return defaultSem;
+  const maxSem = Math.max(...existingSameYear.map(u => u.semester || defaultSem));
+  return Math.max(defaultSem, Math.min(maxSem + 1, year * semPerYear));
 }
 
 router.get("/config", (req, res) => {
@@ -430,12 +471,17 @@ router.post("/promote", (req, res) => {
 
   const { level, department } = req.body;
 
-  const maxYear = {};
+  const maxYearForLevel = {};
   config.years.forEach(y => {
-    if (!maxYear[y.level] || y.year > maxYear[y.level]) {
-      maxYear[y.level] = y.year;
+    if (!maxYearForLevel[y.level] || y.year > maxYearForLevel[y.level]) {
+      maxYearForLevel[y.level] = y.year;
     }
   });
+
+  const getSemestersPerYear = (level) => {
+    const yc = config.years.find(y => y.level === level);
+    return yc ? yc.semesters : 2;
+  };
 
   const newUsers = [];
   users.forEach(u => {
@@ -452,8 +498,17 @@ router.post("/promote", (req, res) => {
       newUsers.push(u);
       return;
     }
-    if (u.year < maxYear[sLevel]) {
+    const semPerYear = getSemestersPerYear(sLevel);
+    const sSem = u.semester || ((u.year - 1) * semPerYear + 1);
+    const maxSem = u.year * semPerYear;
+    const isLastYear = u.year >= maxYearForLevel[sLevel];
+
+    if (sSem < maxSem) {
+      u.semester = sSem + 1;
+      newUsers.push(u);
+    } else if (!isLastYear) {
       u.year = u.year + 1;
+      u.semester = (u.year - 1) * semPerYear + 1;
       newUsers.push(u);
     } else {
       passedOut.push({
@@ -501,3 +556,4 @@ router.get("/passedout", (req, res) => {
 });
 
 module.exports = router;
+

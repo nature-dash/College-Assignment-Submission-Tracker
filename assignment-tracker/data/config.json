@@ -1,11 +1,11 @@
 {
   "levels": ["UG", "PG"],
   "years": [
-    { "level": "UG", "year": 1 },
-    { "level": "UG", "year": 2 },
-    { "level": "UG", "year": 3 },
-    { "level": "PG", "year": 1 },
-    { "level": "PG", "year": 2 }
+    { "level": "UG", "year": 1, "semesters": 2 },
+    { "level": "UG", "year": 2, "semesters": 2 },
+    { "level": "UG", "year": 3, "semesters": 2 },
+    { "level": "PG", "year": 1, "semesters": 2 },
+    { "level": "PG", "year": 2, "semesters": 2 }
   ],
   "departments": [
     "B.Sc Computer Science",

@@ -97,5 +97,16 @@
     "year": 3,
     "level": "UG",
     "passedOutYear": 2026
+  },
+  {
+    "id": 12,
+    "username": "UG3MTH01",
+    "password": "1234",
+    "role": "student",
+    "name": "UG Y3 Maths Student (Sem 6)",
+    "department": "B.Sc Mathematics",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026
   }
 ]

@@ -12,14 +12,14 @@
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between mb-4">
-        <h2>📄 <%= assignment.title %></h2>
+        <h2><%= assignment.title %></h2>
         <div>
             <% if(ref) { %>
-                <a href="/teacher?<%= ref %>" class="btn btn-secondary me-2">🔙 Back</a>
+                <a href="/teacher?<%= ref %>" class="btn btn-secondary me-2">Back</a>
             <% } else { %>
-                <a href="/teacher" class="btn btn-secondary me-2">🔙 Back to Dashboard</a>
+                <a href="/teacher" class="btn btn-secondary me-2">Back to Dashboard</a>
             <% } %>
-            <a href="/teacher/edit/<%= assignment.id %>" class="btn btn-primary">✏️ Edit</a>
+            <a href="/teacher/edit/<%= assignment.id %>" class="btn btn-primary">Edit</a>
         </div>
     </div>
 
@@ -27,6 +27,7 @@
         <h4>Details</h4>
         <p><strong>Subject:</strong> <%= assignment.subject %></p>
         <p><strong>Department:</strong> <%= assignment.department %></p>
+        <p><strong>Degree Level:</strong> <%= assignment.level || 'UG' %></p>
         <p><strong>Year:</strong> <%= assignment.year %></p>
         <p><strong>Due Date:</strong> <%= new Date(assignment.dueDate).toLocaleDateString() %></p>
         <p><strong>Assigned By:</strong> <%= assignment.assignedBy || 'Admin' %></p>
@@ -83,9 +84,9 @@
                                 <form action="/teacher/check/<%= assignment.id %>/<%= item.student.id %>" method="POST" style="display:inline;">
                                     <% if(ref) { %><input type="hidden" name="ref" value="<%= ref %>"><% } %>
                                     <% if(item.submission.checked) { %>
-                                        <button class="btn btn-sm btn-success">✅ Checked</button>
+                                        <button class="btn btn-sm btn-success">Checked</button>
                                     <% } else { %>
-                                        <button class="btn btn-sm btn-outline-secondary">☐ Not Checked</button>
+                                        <button class="btn btn-sm btn-outline-secondary">Not Checked</button>
                                     <% } %>
                                 </form>
                             <% } else { %>

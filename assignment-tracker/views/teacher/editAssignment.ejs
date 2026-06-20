@@ -28,6 +28,14 @@
             </div>
 
             <div class="mb-3">
+                <label>Degree Level</label>
+                <select class="form-select" name="level">
+                    <option value="UG" <%= (assignment.level || 'UG') === 'UG' ? 'selected' : '' %>>UG</option>
+                    <option value="PG" <%= (assignment.level || 'UG') === 'PG' ? 'selected' : '' %>>PG</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
                 <label>Year</label>
                 <select class="form-select" name="year">
                     <option value="1" <%= assignment.year == 1 ? 'selected' : '' %>>I Year</option>

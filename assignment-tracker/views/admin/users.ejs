@@ -6,22 +6,33 @@
     <style>
         body{ background:#f4f7fc; }
         .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+        .searchable-select { position:relative; width:100%; }
+        .searchable-select .form-select { cursor:pointer; text-align:left; }
+        .searchable-menu {
+            display:none; position:absolute; top:100%; left:0; right:0; z-index:1000;
+            background:#fff; border:1px solid #dee2e6; border-radius:6px; padding:8px;
+            max-height:300px; overflow-y:auto; box-shadow:0 6px 16px rgba(0,0,0,0.15);
+        }
+        .searchable-menu.show { display:block; }
+        .searchable-menu .dropdown-item { cursor:pointer; border-radius:4px; }
+        .searchable-menu .dropdown-item:hover { background:#f0f0f0; }
+        .searchable-menu .dropdown-item.active { background:#0d6efd; color:#fff; }
     </style>
 </head>
 <body>
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between mb-4">
-        <h2>👥 User Management</h2>
+        <h2>User Management</h2>
         <div>
-            <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary me-2">🔙 Back to Dashboard</a>
-            <a href="/admin/users/add<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-success">➕ Add User</a>
-            <a href="/admin/users/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary">📥 Download Excel</a>
-            <a href="/admin/passedout<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary">🎓 Passed Out</a>
+            <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary me-2">Back to Dashboard</a>
+            <a href="/admin/passedout<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary me-2">Passed Out</a>
+            <a href="/admin/users/add<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-success me-2">+ Add User</a>
+            <a href="/admin/users/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary">Download Excel</a>
         </div>
     </div>
 
-    <% const config = (function(){ try { return JSON.parse(require('fs').readFileSync('./data/config.json')); } catch(e) { return {levels:['UG','PG'], departments:[], years:[]}; } })(); %>
+
 
     <div class="card card-box p-4 mb-4">
         <h4 class="mb-3">Filters</h4>
@@ -40,6 +51,21 @@
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <div class="searchable-select">
+                        <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                            <%= filters.department || 'All Departments' %>
+                        </button>
+                        <div class="searchable-menu">
+                            <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                            <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Departments</button>
+                            <% config.departments.forEach(function(d) { %>
+                                <button type="button" class="dropdown-item<%= filters.department === d ? ' active' : '' %>" data-value="<%= d %>" onclick="searchablePick(this)"><%= d %></button>
+                            <% }); %>
+                        </div>
+                        <input type="hidden" name="department" value="<%= filters.department || '' %>">
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <select class="form-select" name="level">
                         <option>All Levels</option>
                         <% config.levels.forEach(function(l) { %>
@@ -47,18 +73,37 @@
                         <% }); %>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select" name="department">
-                        <option>All Departments</option>
-                        <% config.departments.forEach(function(d) { %>
-                            <option <%= filters.department === d ? 'selected' : '' %>><%= d %></option>
-                        <% }); %>
-                    </select>
-                </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
                 </div>
             </div>
+            <script>
+            function searchableToggle(btn) {
+                var menu = btn.nextElementSibling;
+                var isOpen = menu.classList.contains('show');
+                document.querySelectorAll('.searchable-menu.show').forEach(function(m) { if (m !== menu) m.classList.remove('show'); });
+                menu.classList.toggle('show');
+                if (!isOpen) { menu.querySelector('input').value = ''; menu.querySelector('input').focus(); menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.style.display = ''; }); }
+            }
+            function searchableFilter(inp) {
+                var val = inp.value.toLowerCase();
+                inp.parentNode.querySelectorAll('.dropdown-item').forEach(function(it) { it.style.display = it.textContent.toLowerCase().indexOf(val) > -1 ? '' : 'none'; });
+            }
+            function searchablePick(item) {
+                var menu = item.closest('.searchable-menu');
+                var container = menu.closest('.searchable-select');
+                var btn = container.querySelector('.dropdown-toggle');
+                var hidden = container.querySelector('input[type="hidden"]');
+                btn.textContent = item.textContent;
+                hidden.value = item.getAttribute('data-value') || '';
+                menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.classList.remove('active'); });
+                item.classList.add('active');
+                menu.classList.remove('show');
+                var form = container.closest('form');
+                if (form) form.submit();
+            }
+            document.addEventListener('click', function(e) { if (!e.target.closest('.searchable-select')) { document.querySelectorAll('.searchable-menu.show').forEach(function(m) { m.classList.remove('show'); }); } });
+            </script>
         </form>
     </div>
 
@@ -71,15 +116,16 @@
                     <th>Name</th>
                     <th>Role</th>
                     <th>Password</th>
-                    <th>Level</th>
+                    <th>Degree Level</th>
                     <th>Department</th>
                     <th>Year</th>
+                    <th>Semester</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <% if(users.length === 0) { %>
-                    <tr><td colspan="8" class="text-center text-muted">No users found</td></tr>
+                    <tr><td colspan="9" class="text-center text-muted">No users found</td></tr>
                 <% } else { %>
                     <% users.forEach(function(u) { %>
                     <tr>
@@ -95,11 +141,12 @@
                         <td>
                             <span class="password-hidden" id="pw-<%= u.id %>">••••••</span>
                             <span class="password-shown d-none" id="pw-show-<%= u.id %>"><%= u.password %></span>
-                            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="togglePw(<%= u.id %>)">👁️</button>
+                            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="togglePw(<%= u.id %>)">Show</button>
                         </td>
                         <td><%= u.level || (u.role === 'student' ? 'UG' : '-') %></td>
                         <td><%= u.department || '-' %></td>
                         <td><%= u.year || '-' %></td>
+                        <td><%= u.semester || '-' %></td>
                         <td>
                             <a href="/admin/users/edit/<%= u.id %><%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-sm btn-primary">Edit</a>
                             <form action="/admin/users/remove/<%= u.id %>" method="POST" style="display:inline;">

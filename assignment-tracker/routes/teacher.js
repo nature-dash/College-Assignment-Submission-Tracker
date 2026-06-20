@@ -26,18 +26,24 @@ router.use((req, res, next) => {
 
 // Dashboard
 router.get("/", (req, res) => {
-  let assignments = readData("assignments");
+  const allAssignments = readData("assignments");
+  let assignments = [...allAssignments];
   const users = readData("users");
   const students = users.filter(u => u.role === "student");
   const submissions = readData("submissions");
+  const config = JSON.parse(fs.readFileSync('./data/config.json'));
+  const allSubjects = [...new Set(allAssignments.map(a => a.subject))].sort();
 
-  const { department, year, subject, taskStatus } = req.query;
+  const { department, year, level, subject, taskStatus } = req.query;
 
   if (department && department !== 'All Departments') {
     assignments = assignments.filter(a => a.department === department);
   }
   if (year && year !== 'All Years') {
     assignments = assignments.filter(a => a.year == year);
+  }
+  if (level && level !== 'All Levels') {
+    assignments = assignments.filter(a => (a.level || 'UG') === level);
   }
   if (subject && subject !== 'All Subjects') {
     assignments = assignments.filter(a => a.subject === subject);
@@ -52,7 +58,7 @@ router.get("/", (req, res) => {
 
   // Compute progress per assignment
   const assignmentsWithProgress = assignments.map(a => {
-    const applicableStudents = students.filter(s => s.department === a.department && s.year == a.year);
+    const applicableStudents = students.filter(s => s.department === a.department && s.year == a.year && (s.level || 'UG') === (a.level || 'UG'));
     const totalStudents = applicableStudents.length;
     let submittedStudents = 0;
     
@@ -101,6 +107,9 @@ router.get("/", (req, res) => {
     if (subject && subject !== 'All Subjects') {
       displayTasks = displayTasks.filter(t => t.assignment.subject === subject);
     }
+    if (level && level !== 'All Levels') {
+      displayTasks = displayTasks.filter(t => (t.assignment.level || 'UG') === level);
+    }
   }
 
   res.render("teacher/dashboard", {
@@ -111,7 +120,9 @@ router.get("/", (req, res) => {
     submittedCount,
     pendingCount,
     lateCount,
-    filters: req.query || {}
+    filters: req.query || {},
+    config,
+    allSubjects
   });
 });
 
@@ -129,6 +140,7 @@ router.post("/add", (req, res) => {
     title: req.body.title,
     department: req.body.department,
     year: Number(req.body.year),
+    level: req.body.level || 'UG',
     subject: req.body.subject,
     dueDate: req.body.dueDate,
     assignedBy: req.session.user.name || req.session.user.username
@@ -154,6 +166,7 @@ router.get("/calendar", (req, res) => {
 router.get("/students", (req, res) => {
   const users = readData("users");
   const students = users.filter(u => u.role === "student");
+  const config = JSON.parse(fs.readFileSync('./data/config.json'));
   
   const { department, year, level } = req.query;
   let filteredStudents = students;
@@ -170,6 +183,7 @@ router.get("/students", (req, res) => {
   const ref = req.query.ref || '';
   res.render("teacher/students", { 
     students: filteredStudents, 
+    config,
     filters: req.query || {},
     ref
   });
@@ -203,6 +217,7 @@ router.get("/students/download", (req, res) => {
       "Level": s.level || 'UG',
       "Department": s.department,
       "Year": s.year,
+      "Semester": s.semester || '-',
       "Assessments Assigned": assigned,
       "Assessments Completed": completed
     };
@@ -295,6 +310,7 @@ router.post("/edit/:id", (req, res) => {
     assignments[index].title = req.body.title;
     assignments[index].department = req.body.department;
     assignments[index].year = Number(req.body.year);
+    assignments[index].level = req.body.level || 'UG';
     assignments[index].subject = req.body.subject;
     assignments[index].dueDate = req.body.dueDate;
     writeData("assignments", assignments);
@@ -310,7 +326,7 @@ router.get("/view/:id", (req, res) => {
   if (!assignment) return res.redirect("/teacher");
   
   const users = readData("users");
-  const students = users.filter(u => u.role === "student" && u.department === assignment.department && u.year == assignment.year);
+  const students = users.filter(u => u.role === "student" && u.department === assignment.department && u.year == assignment.year && (u.level || 'UG') === (assignment.level || 'UG'));
   const submissions = readData("submissions");
   const ref = req.query.ref || '';
   

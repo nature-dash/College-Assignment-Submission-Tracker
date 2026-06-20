@@ -6,6 +6,17 @@
     <style>
         body{ background:#f4f7fc; }
         .card-box{ border:none; border-radius:20px; box-shadow:0px 5px 20px rgba(0,0,0,0.1); }
+        .searchable-select { position:relative; width:100%; }
+        .searchable-select .form-select { cursor:pointer; text-align:left; }
+        .searchable-menu {
+            display:none; position:absolute; top:100%; left:0; right:0; z-index:1000;
+            background:#fff; border:1px solid #dee2e6; border-radius:6px; padding:8px;
+            max-height:300px; overflow-y:auto; box-shadow:0 6px 16px rgba(0,0,0,0.15);
+        }
+        .searchable-menu.show { display:block; }
+        .searchable-menu .dropdown-item { cursor:pointer; border-radius:4px; }
+        .searchable-menu .dropdown-item:hover { background:#f0f0f0; }
+        .searchable-menu .dropdown-item.active { background:#0d6efd; color:#fff; }
     </style>
 </head>
 <body class="bg-light">
@@ -13,11 +24,11 @@
 <div class="container mt-5">
     <div class="card card-box p-4">
         <div class="d-flex justify-content-between mb-3">
-            <h2> Passed Out Students</h2>
+            <h2>Passed Out Students</h2>
             <div>
-                <a href="<%= ref ? '/admin?ref=' + encodeURIComponent(ref) : '/admin' %>" class="btn btn-secondary me-2"> Back to Dashboard</a>
-                <a href="/admin/passedout/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary me-2">📥 Download Excel</a>
-                <a href="/admin/users<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary"> Manage Users</a>
+                <a href="<%= ref ? '/admin?ref=' + encodeURIComponent(ref) : '/admin' %>" class="btn btn-secondary me-2">Back to Dashboard</a>
+                <a href="/admin/users<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary me-2">Manage Users</a>
+                <a href="/admin/passedout/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary">Download Excel</a>
             </div>
         </div>
 
@@ -39,12 +50,19 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <select class="form-select" name="department">
-                            <option>All Departments</option>
-                            <% config.departments.forEach(function(d) { %>
-                                <option <%= filters.department === d ? 'selected' : '' %>><%= d %></option>
-                            <% }); %>
-                        </select>
+                        <div class="searchable-select">
+                            <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
+                                <%= filters.department || 'All Departments' %>
+                            </button>
+                            <div class="searchable-menu">
+                                <input type="text" class="form-control form-control-sm mb-2" placeholder="Search..." oninput="searchableFilter(this)" onclick="event.stopPropagation()">
+                                <button type="button" class="dropdown-item" data-value="" onclick="searchablePick(this)">All Departments</button>
+                                <% config.departments.forEach(function(d) { %>
+                                    <button type="button" class="dropdown-item<%= filters.department === d ? ' active' : '' %>" data-value="<%= d %>" onclick="searchablePick(this)"><%= d %></button>
+                                <% }); %>
+                            </div>
+                            <input type="hidden" name="department" value="<%= filters.department || '' %>">
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <select class="form-select" name="passedOutYear">
@@ -76,7 +94,7 @@
                         <th>Username</th>
                         <th>Name</th>
                         <th>Department</th>
-                        <th>Level</th>
+                        <th>Degree Level</th>
                         <th>Year</th>
                         <th>Assessments Assigned</th>
                         <th>Assessments Completed</th>
@@ -106,5 +124,32 @@
     </div>
 </div>
 
+<script>
+function searchableToggle(btn) {
+    var menu = btn.nextElementSibling;
+    var isOpen = menu.classList.contains('show');
+    document.querySelectorAll('.searchable-menu.show').forEach(function(m) { if (m !== menu) m.classList.remove('show'); });
+    menu.classList.toggle('show');
+    if (!isOpen) { menu.querySelector('input').value = ''; menu.querySelector('input').focus(); menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.style.display = ''; }); }
+}
+function searchableFilter(inp) {
+    var val = inp.value.toLowerCase();
+    inp.parentNode.querySelectorAll('.dropdown-item').forEach(function(it) { it.style.display = it.textContent.toLowerCase().indexOf(val) > -1 ? '' : 'none'; });
+}
+function searchablePick(item) {
+    var menu = item.closest('.searchable-menu');
+    var container = menu.closest('.searchable-select');
+    var btn = container.querySelector('.dropdown-toggle');
+    var hidden = container.querySelector('input[type="hidden"]');
+    btn.textContent = item.textContent;
+    hidden.value = item.getAttribute('data-value') || '';
+    menu.querySelectorAll('.dropdown-item').forEach(function(it) { it.classList.remove('active'); });
+    item.classList.add('active');
+    menu.classList.remove('show');
+    var form = container.closest('form');
+    if (form) form.submit();
+}
+document.addEventListener('click', function(e) { if (!e.target.closest('.searchable-select')) { document.querySelectorAll('.searchable-menu.show').forEach(function(m) { m.classList.remove('show'); }); } });
+</script>
 </body>
 </html>
