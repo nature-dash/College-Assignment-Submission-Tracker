@@ -16,6 +16,7 @@
         <div>
             <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary me-2">🔙 Back to Dashboard</a>
             <a href="/admin/users/add<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-success">➕ Add User</a>
+            <a href="/admin/users/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary">📥 Download Excel</a>
             <a href="/admin/passedout<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary">🎓 Passed Out</a>
         </div>
     </div>

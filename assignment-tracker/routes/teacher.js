@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
+const XLSX = require("xlsx");
 
 function readData(file) {
   try {
@@ -172,6 +173,55 @@ router.get("/students", (req, res) => {
     filters: req.query || {},
     ref
   });
+});
+
+// Download Students as Excel
+router.get("/students/download", (req, res) => {
+  const users = readData("users");
+  const students = users.filter(u => u.role === "student");
+  const assignments = readData("assignments");
+  const submissions = readData("submissions");
+
+  const { department, year, level } = req.query;
+  let filteredStudents = students;
+  if (level && level !== 'All Levels') {
+    filteredStudents = filteredStudents.filter(s => s.level === level);
+  }
+  if (department && department !== 'All Departments') {
+    filteredStudents = filteredStudents.filter(s => s.department === department);
+  }
+  if (year && year !== 'All Years') {
+    filteredStudents = filteredStudents.filter(s => s.year == year);
+  }
+
+  const data = filteredStudents.map(s => {
+    const assigned = assignments.filter(a => a.department === s.department && a.year == s.year).length;
+    const completed = submissions.filter(sub => sub.studentId == s.id).length;
+    return {
+      "Reg. Number": s.username,
+      "Name": s.name,
+      "Level": s.level || 'UG',
+      "Department": s.department,
+      "Year": s.year,
+      "Assessments Assigned": assigned,
+      "Assessments Completed": completed
+    };
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, "Students");
+
+  let nameParts = ["Students"];
+  if (level && level !== 'All Levels') nameParts.push(level);
+  if (department && department !== 'All Departments') nameParts.push(department);
+  if (year && year !== 'All Years') nameParts.push("Year" + year);
+  const fileName = nameParts.join("_") + ".xlsx";
+
+  const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+  res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(fileName)}"`);
+  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.send(buf);
 });
 
 // Student Details

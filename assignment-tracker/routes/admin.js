@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
+const XLSX = require("xlsx");
 
 function readData(file) {
   try {
@@ -114,6 +115,112 @@ router.get("/users", (req, res) => {
   }
   const ref = req.query.ref || '';
   res.render("admin/users", { users: filteredUsers, filters: req.query || {}, ref });
+});
+
+// Download Users as Excel
+router.get("/users/download", (req, res) => {
+  const users = readData("users");
+  const assignments = readData("assignments");
+  const submissions = readData("submissions");
+  const { role, level, department } = req.query;
+  let filteredUsers = users.filter(u => u.role !== 'admin');
+  if (role && role !== 'All Roles') {
+    filteredUsers = filteredUsers.filter(u => u.role === role);
+  }
+  if (level && level !== 'All Levels') {
+    filteredUsers = filteredUsers.filter(u => u.level === level);
+  }
+  if (department && department !== 'All Departments') {
+    filteredUsers = filteredUsers.filter(u => u.department === department);
+  }
+
+  const data = filteredUsers.map(u => {
+    const row = {
+      "Username": u.username,
+      "Name": u.name,
+      "Role": u.role === 'teacher' ? 'Teacher' : 'Student',
+      "Password": u.password,
+      "Level": u.level || (u.role === 'student' ? 'UG' : '-'),
+      "Department": u.department || '-',
+      "Year": u.year || '-'
+    };
+    if (u.role === 'student') {
+      const assigned = assignments.filter(a => a.department === u.department && a.year == u.year).length;
+      const completed = submissions.filter(s => s.studentId == u.id).length;
+      row["Assessments Assigned"] = assigned;
+      row["Assessments Completed"] = completed;
+    } else if (u.role === 'teacher') {
+      const totalAssigned = assignments.filter(a => a.assignedBy === u.name || a.assignedBy === u.username).length;
+      row["Total Assessments Assigned"] = totalAssigned;
+    }
+    return row;
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+  // Build file name from filters
+  let nameParts = [];
+  if (role && role !== 'All Roles') nameParts.push(role === 'student' ? 'Students' : 'Teachers');
+  else nameParts.push("Users");
+  if (level && level !== 'All Levels') nameParts.push(level);
+  if (department && department !== 'All Departments') nameParts.push(department);
+  const fileName = nameParts.join("_") + ".xlsx";
+
+  const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+  res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(fileName)}"`);
+  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.send(buf);
+});
+
+// Download Passed Out Students as Excel
+router.get("/passedout/download", (req, res) => {
+  let passedOut = readData("passedout");
+  const assignments = readData("assignments");
+  const submissions = readData("submissions");
+  const { level, department, passedOutYear } = req.query;
+
+  if (level && level !== 'All Levels') {
+    passedOut = passedOut.filter(s => s.level === level);
+  }
+  if (department && department !== 'All Departments') {
+    passedOut = passedOut.filter(s => s.department === department);
+  }
+  if (passedOutYear && passedOutYear !== 'All Years') {
+    passedOut = passedOut.filter(s => String(s.passedOutYear) === passedOutYear);
+  }
+
+  passedOut.sort((a, b) => (b.passedOutYear || 0) - (a.passedOutYear || 0));
+
+  const data = passedOut.map(s => {
+    const assigned = assignments.filter(a => a.department === s.department && a.year == s.year).length;
+    const completed = submissions.filter(sub => sub.studentId == s.id).length;
+    return {
+      "Username": s.username,
+      "Name": s.name,
+      "Department": s.department,
+      "Level": s.level || 'UG',
+      "Year": s.year,
+      "Assessments Assigned": assigned,
+      "Assessments Completed": completed,
+      "Passed Out Year": s.passedOutYear
+    };
+  });
+
+  let nameParts = ["Passed_Out_Students"];
+  if (level && level !== 'All Levels') nameParts.push(level);
+  if (department && department !== 'All Departments') nameParts.push(department);
+  if (passedOutYear && passedOutYear !== 'All Years') nameParts.push("Year" + passedOutYear);
+  const fileName = nameParts.join("_") + ".xlsx";
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(data);
+  XLSX.utils.book_append_sheet(wb, ws, "PassedOut");
+  const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+  res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(fileName)}"`);
+  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.send(buf);
 });
 
 // Add User (GET)
@@ -372,11 +479,25 @@ router.post("/promote", (req, res) => {
 
 // Passed Out Students
 router.get("/passedout", (req, res) => {
-  const passedOut = readData("passedout");
+  let passedOut = readData("passedout");
   const config = readConfig();
   const ref = req.query.ref || '';
+  const { level, department, passedOutYear } = req.query;
+
+  if (level && level !== 'All Levels') {
+    passedOut = passedOut.filter(s => s.level === level);
+  }
+  if (department && department !== 'All Departments') {
+    passedOut = passedOut.filter(s => s.department === department);
+  }
+  if (passedOutYear && passedOutYear !== 'All Years') {
+    passedOut = passedOut.filter(s => String(s.passedOutYear) === passedOutYear);
+  }
+
+  const assignments = readData("assignments");
+  const submissions = readData("submissions");
   passedOut.sort((a, b) => (b.passedOutYear || 0) - (a.passedOutYear || 0));
-  res.render("admin/passedout", { passedOut, config, ref });
+  res.render("admin/passedout", { passedOut, config, ref, filters: req.query || {}, assignments, submissions });
 });
 
 module.exports = router;

@@ -16,12 +16,56 @@
             <h2> Passed Out Students</h2>
             <div>
                 <a href="<%= ref ? '/admin?ref=' + encodeURIComponent(ref) : '/admin' %>" class="btn btn-secondary me-2"> Back to Dashboard</a>
+                <a href="/admin/passedout/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary me-2">📥 Download Excel</a>
                 <a href="/admin/users<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary"> Manage Users</a>
             </div>
         </div>
 
+        <div class="card card-box p-4 mb-4">
+            <h4 class="mb-3">Filters</h4>
+            <form action="/admin/passedout" method="GET">
+                <% Object.keys(filters).forEach(function(key) { %>
+                    <% if (key !== 'level' && key !== 'department' && key !== 'passedOutYear') { %>
+                        <input type="hidden" name="<%= key %>" value="<%= filters[key] %>">
+                    <% } %>
+                <% }); %>
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select" name="level">
+                            <option>All Levels</option>
+                            <% config.levels.forEach(function(l) { %>
+                                <option value="<%= l %>" <%= filters.level === l ? 'selected' : '' %>><%= l %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" name="department">
+                            <option>All Departments</option>
+                            <% config.departments.forEach(function(d) { %>
+                                <option <%= filters.department === d ? 'selected' : '' %>><%= d %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="passedOutYear">
+                            <option>All Years</option>
+                            <% 
+                                const years = [...new Set(passedOut.map(s => s.passedOutYear))].sort().reverse();
+                                years.forEach(function(y) { 
+                            %>
+                                <option value="<%= y %>" <%= filters.passedOutYear == y ? 'selected' : '' %>><%= y %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
         <% if (!passedOut || passedOut.length === 0) { %>
-            <div class="alert alert-info">No students have been passed out yet.</div>
+            <div class="alert alert-info">No students found matching the filters.</div>
         <% } else { %>
             <p class="text-muted">Showing <b><%= passedOut.length %></b> passed out student(s)</p>
 
@@ -34,11 +78,16 @@
                         <th>Department</th>
                         <th>Level</th>
                         <th>Year</th>
+                        <th>Assessments Assigned</th>
+                        <th>Assessments Completed</th>
                         <th>Passed Out Year</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% passedOut.forEach(function(s, i) { %>
+                    <% passedOut.forEach(function(s, i) { 
+                        const assigned = assignments.filter(a => a.department === s.department && a.year == s.year).length;
+                        const completed = submissions.filter(sub => sub.studentId == s.id).length;
+                    %>
                         <tr>
                             <td><%= i + 1 %></td>
                             <td><%= s.username %></td>
@@ -46,6 +95,8 @@
                             <td><%= s.department %></td>
                             <td><%= s.level || 'UG' %></td>
                             <td><%= s.year %></td>
+                            <td><%= assigned %></td>
+                            <td><%= completed %></td>
                             <td><%= s.passedOutYear %></td>
                         </tr>
                     <% }); %>

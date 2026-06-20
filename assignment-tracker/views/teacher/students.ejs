@@ -16,6 +16,7 @@
     <div class="d-flex justify-content-between mb-4">
         <h2>👥 Students List</h2>
         <div>
+            <a href="/teacher/students/download<%= Object.keys(filters).length > 0 ? '?' + Object.entries(filters).filter(([k,v]) => k !== 'ref' && v).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&') : '' %>" class="btn btn-primary me-2">📥 Download Excel</a>
             <a href="<%= ref ? '/teacher?' + ref : '/teacher' %>" class="btn btn-secondary">🔙 Back to Dashboard</a>
         </div>
     </div>
