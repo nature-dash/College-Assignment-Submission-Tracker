@@ -13,8 +13,10 @@
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between mb-4">
         <h2>Student Promotion</h2>
-        <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary me-2">Back to Dashboard</a>
-        <a href="/admin/passedout<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary">Passed Out Students</a>
+        <div>
+            <a href="<%= ref ? '/admin?' + ref : '/admin' %>" class="btn btn-secondary me-2">Back to Dashboard</a>
+            <a href="/admin/passedout<%= ref ? '?ref=' + encodeURIComponent(ref) : '' %>" class="btn btn-secondary">Passed Out Students</a>
+        </div>
     </div>
 
     <% if (success) { %>

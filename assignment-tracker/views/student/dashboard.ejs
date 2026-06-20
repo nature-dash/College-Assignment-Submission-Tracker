@@ -7,20 +7,186 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --bg: linear-gradient(135deg, #f0f4ff 0%, #e8ecf8 100%);
+    --text: #1a1c2e;
+    --text-muted: #8a8fa8;
+    --card-bg: #fff;
+    --card-border: #e2e4ed;
+    --table-row: #f8f9fd;
+    --table-row-hover: #f0f2f8;
+    --td-color: #4a4e6b;
+    --th-color: #8a8fa8;
+    --form-bg: #f5f6fa;
+    --form-border: #e2e4ed;
+    --form-text: #1a1c2e;
+    --form-option-bg: #fff;
+    --menu-bg: #fff;
+    --menu-text: #4a4e6b;
+    --menu-hover-bg: #f0f2f8;
+    --menu-hover-text: #1a1c2e;
+    --modal-bg: #fff;
+    --modal-text: #1a1c2e;
+    --divider: rgba(0,0,0,0.04);
+    --hero-color: #1a1c2e;
+    --hero-shadow: none;
+    --btn-glass-bg: #fff;
+    --btn-glass-text: #4a4e6b;
+    --btn-glass-border: #e2e4ed;
+    --btn-glass-shadow: rgba(0,0,0,0.04);
+    --btn-glass-hover-bg: #f5f6fa;
+    --btn-glass-hover-text: #1a1c2e;
+    --btn-danger-bg: #fff0f0;
+    --btn-danger-text: #d14545;
+    --btn-danger-border: #ffd4d4;
+    --btn-danger-hover-bg: #ffe0e0;
+    --badge-late-bg: #fff0f0;
+    --badge-late-text: #d14545;
+    --badge-late-border: #ffd4d4;
+    --badge-pending-bg: #fff8e6;
+    --badge-pending-text: #e6a020;
+    --badge-pending-border: #ffe8b8;
+    --badge-submitted-bg: #eafaef;
+    --badge-submitted-text: #2b9e4a;
+    --badge-submitted-border: #c6ebd4;
+    --action-view-bg: #f0f2f8;
+    --action-view-text: #4a4e6b;
+    --action-view-border: #e2e4ed;
+    --action-view-hover-bg: #e5e7ef;
+    --action-view-hover-text: #1a1c2e;
+    --action-edit-bg: #e8f0fe;
+    --action-edit-text: #4d96ff;
+    --action-edit-border: #cde0fc;
+    --action-edit-hover-bg: #d4e4fc;
+    --hero-subtitle: #8a8fa8;
+    --hero-subtitle-span: #4a4e6b;
+    --stat-num-late: #d14545;
+    --stat-num-pending: #e6a020;
+    --stat-num-done: #2b9e4a;
+    --stat-bg: #fff;
+    --stat-border: #e2e4ed;
+    --stat-hover-bg: #fff;
+    --stat-hover-border: #e2e4ed;
+    --mobile-td-border: rgba(0,0,0,0.04);
+    --mobile-td-before: #8a8fa8;
+    --close-filter: none;
+    --empty-text: #8a8fa8;
+    --glass-h4: #1a1c2e;
+    --stat-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    --form-label: #4a4e6b;
+    --menu-border: #e2e4ed;
+    --menu-shadow: rgba(0,0,0,0.1);
+    --menu-input-bg: #f5f6fa;
+    --menu-input-border: #e2e4ed;
+    --menu-input-text: #1a1c2e;
+  }
+
+  body.dark {
+    --bg: linear-gradient(135deg, #050916 0%, #0a0e27 40%, #0d1635 70%, #0a1128 100%);
+    --text: #e0e4f0;
+    --text-muted: #7880a0;
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.08);
+    --table-row: rgba(255,255,255,0.04);
+    --table-row-hover: rgba(255,255,255,0.08);
+    --td-color: #b0b8d0;
+    --th-color: #7880a0;
+    --form-bg: rgba(0,0,0,0.25);
+    --form-border: rgba(255,255,255,0.10);
+    --form-text: #e0e4f0;
+    --form-option-bg: #0a0e27;
+    --menu-bg: #0d1230;
+    --menu-text: #b0b8d0;
+    --menu-hover-bg: rgba(255,255,255,0.08);
+    --menu-hover-text: #fff;
+    --modal-bg: #0d1230;
+    --modal-text: #e0e4f0;
+    --divider: rgba(255,255,255,0.06);
+    --hero-color: #fff;
+    --hero-shadow: 0 0 20px rgba(255,230,0,0.6), 0 0 40px rgba(255,200,0,0.4), 0 0 60px rgba(255,180,0,0.2);
+    --btn-glass-bg: rgba(255,255,255,0.06);
+    --btn-glass-text: #b0b8d0;
+    --btn-glass-border: rgba(255,255,255,0.10);
+    --btn-glass-shadow: rgba(0,0,0,0.2);
+    --btn-glass-hover-bg: rgba(255,255,255,0.12);
+    --btn-glass-hover-text: #fff;
+    --btn-danger-bg: rgba(209,69,69,0.15);
+    --btn-danger-text: #ff7a7a;
+    --btn-danger-border: rgba(209,69,69,0.25);
+    --btn-danger-hover-bg: rgba(209,69,69,0.25);
+    --badge-late-bg: rgba(255,107,107,0.15);
+    --badge-late-text: #ff6b6b;
+    --badge-late-border: rgba(255,107,107,0.25);
+    --badge-pending-bg: rgba(240,192,64,0.15);
+    --badge-pending-text: #f0c040;
+    --badge-pending-border: rgba(240,192,64,0.25);
+    --badge-submitted-bg: rgba(76,223,122,0.15);
+    --badge-submitted-text: #4cdf7a;
+    --badge-submitted-border: rgba(76,223,122,0.25);
+    --action-view-bg: rgba(255,255,255,0.06);
+    --action-view-text: #b0b8d0;
+    --action-view-border: rgba(255,255,255,0.10);
+    --action-view-hover-bg: rgba(255,255,255,0.12);
+    --action-view-hover-text: #fff;
+    --action-edit-bg: rgba(77,150,255,0.15);
+    --action-edit-text: #7ab8ff;
+    --action-edit-border: rgba(77,150,255,0.25);
+    --action-edit-hover-bg: rgba(77,150,255,0.25);
+    --hero-subtitle: #8890aa;
+    --hero-subtitle-span: #c0c8e0;
+    --stat-num-late: #ff6b6b;
+    --stat-num-pending: #f0c040;
+    --stat-num-done: #4cdf7a;
+    --stat-bg: rgba(255,255,255,0.04);
+    --stat-border: rgba(255,255,255,0.08);
+    --stat-hover-bg: rgba(255,255,255,0.08);
+    --stat-hover-border: rgba(255,255,255,0.15);
+    --mobile-td-border: rgba(255,255,255,0.06);
+    --mobile-td-before: #7880a0;
+    --close-filter: invert(1);
+    --empty-text: #7880a0;
+    --glass-h4: #e0e4f0;
+    --stat-shadow: none;
+    --card-shadow: none;
+    --form-label: #b0b8d0;
+    --menu-border: rgba(255,255,255,0.10);
+    --menu-shadow: rgba(0,0,0,0.5);
+    --menu-input-bg: rgba(0,0,0,0.3);
+    --menu-input-border: rgba(255,255,255,0.10);
+    --menu-input-text: #e0e4f0;
+  }
+
   body {
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f0f4ff 0%, #e8ecf8 100%);
-    color: #1a1c2e;
+    background: var(--bg);
+    color: var(--text);
   }
+
+  body:not(.dark) {
+    background-size: 150% 150%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
   #particleCanvas {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
     z-index: 0;
     pointer-events: none;
+    display: none;
   }
+  body.dark #particleCanvas { display: block; }
+
   .content-wrap {
     position: relative;
     z-index: 1;
@@ -30,7 +196,7 @@
   .top-bar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 30px;
   }
   .top-bar h2 {
@@ -42,7 +208,7 @@
     background-clip: text;
     margin: 0;
   }
-  .top-bar .nav-btns { display:flex; gap:12px; }
+  .top-bar .nav-btns { display:flex; gap:12px; flex-wrap:wrap; }
   .top-bar .nav-btns a {
     padding: 8px 20px;
     border-radius: 50px;
@@ -51,26 +217,44 @@
     text-decoration: none;
     transition: all .3s;
   }
+  .top-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+  .theme-switcher { display:flex; gap:8px; }
+  .theme-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--card-border);
+    cursor: pointer;
+    transition: all .3s;
+    padding: 0;
+    background: transparent;
+  }
+  .theme-dot.dot-light { background: #fff; }
+  .theme-dot.dot-dark { background: #1a1c2e; }
+  body.dark .theme-dot.dot-dark { border-color: #4d96ff; transform:scale(1.15); }
+  .theme-dot.dot-light.active { border-color: #4d96ff; transform:scale(1.15); }
+  .theme-dot:hover { transform:scale(1.2); }
+
   .btn-glass {
-    background: #fff;
-    color: #4a4e6b;
-    border: 1px solid #e2e4ed;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    background: var(--btn-glass-bg);
+    color: var(--btn-glass-text);
+    border: 1px solid var(--btn-glass-border);
+    box-shadow: 0 2px 8px var(--btn-glass-shadow);
+    backdrop-filter: blur(6px);
   }
   .btn-glass:hover {
-    background: #f5f6fa;
-    color: #1a1c2e;
+    background: var(--btn-glass-hover-bg);
+    color: var(--btn-glass-hover-text);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
   }
   .btn-glass-danger {
-    background: #fff0f0;
-    color: #d14545;
-    border: 1px solid #ffd4d4;
+    background: var(--btn-danger-bg);
+    color: var(--btn-danger-text);
+    border: 1px solid var(--btn-danger-border);
   }
   .btn-glass-danger:hover {
-    background: #ffe0e0;
-    color: #d14545;
+    background: var(--btn-danger-hover-bg);
+    color: var(--btn-danger-text);
     transform: translateY(-2px);
   }
   .hero {
@@ -81,14 +265,37 @@
     font-size: 36px;
     font-weight: 700;
     margin-bottom: 6px;
-    color: #1a1c2e;
+    color: var(--hero-color);
+    text-shadow: var(--hero-shadow);
+  }
+  body:not(.dark) .hero h1 {
+    background: linear-gradient(90deg, #1a1c2e 0%, #4d96ff 25%, #6b5bff 50%, #4d96ff 75%, #1a1c2e 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease infinite;
+    text-shadow: none;
+  }
+  @keyframes shimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+  body.dark .hero h1 {
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+    color: #fff;
+    text-shadow: var(--hero-shadow);
+    animation: none;
   }
   .hero .subtitle {
     font-size: 15px;
-    color: #8a8fa8;
+    color: var(--hero-subtitle);
     font-weight: 500;
   }
-  .hero .subtitle span { color: #4a4e6b; }
+  .hero .subtitle span { color: var(--hero-subtitle-span); }
   .stats-row {
     display: flex;
     justify-content: center;
@@ -97,18 +304,29 @@
     flex-wrap: wrap;
   }
   .stat-card {
-    background: #fff;
-    border: 1px solid #e2e4ed;
+    background: var(--stat-bg);
+    border: 1px solid var(--stat-border);
     border-radius: 16px;
     padding: 14px 28px;
     text-align: center;
     min-width: 120px;
     transition: all .3s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--stat-shadow);
   }
   .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    background: var(--stat-hover-bg);
+    border-color: var(--stat-hover-border);
+  }
+  body:not(.dark) .stat-card {
+    animation: float 6s ease-in-out infinite;
+  }
+  body:not(.dark) .stat-card:nth-child(2) { animation-delay: 0.3s; }
+  body:not(.dark) .stat-card:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
   }
   .stat-card .num {
     font-size: 28px;
@@ -121,41 +339,46 @@
     letter-spacing: 1px;
     font-weight: 600;
   }
-  .stat-card.late .num { color: #d14545; }
-  .stat-card.late .label { color: #d14545; }
-  .stat-card.pending .num { color: #e6a020; }
-  .stat-card.pending .label { color: #e6a020; }
-  .stat-card.done .num { color: #2b9e4a; }
-  .stat-card.done .label { color: #2b9e4a; }
+  .stat-card.late .num { color: var(--stat-num-late); }
+  .stat-card.late .label { color: var(--stat-num-late); }
+  .stat-card.pending .num { color: var(--stat-num-pending); }
+  .stat-card.pending .label { color: var(--stat-num-pending); }
+  .stat-card.done .num { color: var(--stat-num-done); }
+  .stat-card.done .label { color: var(--stat-num-done); }
   .glass-card {
-    background: #fff;
-    border: 1px solid #e2e4ed;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 20px;
     padding: 24px 28px;
     margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: var(--card-shadow);
+    backdrop-filter: blur(8px);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  body:not(.dark) .glass-card:hover {
+    box-shadow: 0 0 30px rgba(77,150,255,0.12), 0 8px 30px rgba(0,0,0,0.06);
   }
   .glass-card.filter-card { position: relative; z-index: 5; }
   .glass-card h4 {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 16px;
-    color: #1a1c2e;
+    color: var(--glass-h4);
   }
-  .glass-card p.text-muted { color: #8a8fa8 !important; font-size: 14px; }
+  .glass-card p.text-muted { color: var(--text-muted) !important; font-size: 14px; }
   .form-glass {
-    background: #f5f6fa !important;
-    border: 1px solid #e2e4ed !important;
-    color: #1a1c2e !important;
+    background: var(--form-bg) !important;
+    border: 1px solid var(--form-border) !important;
+    color: var(--form-text) !important;
     border-radius: 12px !important;
     padding: 10px 16px !important;
     font-size: 14px !important;
   }
   .form-glass:focus {
-    box-shadow: 0 0 0 3px rgba(77,150,255,0.12) !important;
+    box-shadow: 0 0 0 3px rgba(77,150,255,0.20) !important;
     border-color: #4d96ff !important;
   }
-  .form-glass option { background:#fff; color:#1a1c2e; }
+  .form-glass option { background: var(--form-option-bg); color: var(--form-text); }
   .btn-filter {
     background: linear-gradient(135deg, <%= tailColor %>, #4d96ff);
     border: none;
@@ -176,7 +399,7 @@
     border-spacing: 0 6px;
   }
   .table-gloss thead th {
-    color: #8a8fa8;
+    color: var(--th-color);
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
@@ -186,18 +409,18 @@
     background: transparent;
   }
   .table-gloss tbody tr {
-    background: #f8f9fd;
+    background: var(--table-row);
     border-radius: 14px;
     transition: all .3s;
   }
   .table-gloss tbody tr:hover {
-    background: #f0f2f8;
+    background: var(--table-row-hover);
     transform: scale(1.005);
   }
   .table-gloss td {
     padding: 14px 16px;
     border: none;
-    color: #4a4e6b;
+    color: var(--td-color);
     font-size: 14px;
     vertical-align: middle;
   }
@@ -209,9 +432,9 @@
     font-size: 12px;
     font-weight: 600;
   }
-  .badge-late { background: #fff0f0; color: #d14545; border: 1px solid #ffd4d4; }
-  .badge-pending { background: #fff8e6; color: #e6a020; border: 1px solid #ffe8b8; }
-  .badge-submitted { background: #eafaef; color: #2b9e4a; border: 1px solid #c6ebd4; }
+  .badge-late { background: var(--badge-late-bg); color: var(--badge-late-text); border: 1px solid var(--badge-late-border); }
+  .badge-pending { background: var(--badge-pending-bg); color: var(--badge-pending-text); border: 1px solid var(--badge-pending-border); }
+  .badge-submitted { background: var(--badge-submitted-bg); color: var(--badge-submitted-text); border: 1px solid var(--badge-submitted-border); }
   .btn-action {
     padding: 6px 16px;
     border-radius: 50px;
@@ -223,27 +446,27 @@
   }
   .btn-action-submit { background: linear-gradient(135deg, <%= tailColor %>, #4d96ff); color: #fff; border: none; }
   .btn-action-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(77,150,255,0.25); color:#fff; }
-  .btn-action-view { background: #f0f2f8; color: #4a4e6b; border: 1px solid #e2e4ed; }
-  .btn-action-view:hover { background: #e5e7ef; color: #1a1c2e; }
-  .btn-action-edit { background: #e8f0fe; color: #4d96ff; border: 1px solid #cde0fc; }
-  .btn-action-edit:hover { background: #d4e4fc; color: #4d96ff; }
+  .btn-action-view { background: var(--action-view-bg); color: var(--action-view-text); border: 1px solid var(--action-view-border); }
+  .btn-action-view:hover { background: var(--action-view-hover-bg); color: var(--action-view-hover-text); }
+  .btn-action-edit { background: var(--action-edit-bg); color: var(--action-edit-text); border: 1px solid var(--action-edit-border); }
+  .btn-action-edit:hover { background: var(--action-edit-hover-bg); color: var(--action-edit-text); }
   .searchable-select { position:relative; width:100%; }
   .searchable-select .form-glass { cursor:pointer; text-align:left; }
   .searchable-menu {
     display:none; position:absolute; top:100%; left:0; right:0; z-index:1000;
-    background: #fff;
-    border: 1px solid #e2e4ed;
+    background: var(--menu-bg);
+    border: 1px solid var(--menu-border);
     border-radius: 12px;
     padding: 10px;
     max-height: 300px;
     overflow-y: auto;
-    box-shadow: 0 12px 50px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 50px var(--menu-shadow);
   }
   .searchable-menu.show { display:block; }
-  .searchable-menu input { background:#f5f6fa !important; border:1px solid #e2e4ed !important; color:#1a1c2e !important; border-radius:8px !important; }
+  .searchable-menu input { background:var(--menu-input-bg) !important; border:1px solid var(--menu-input-border) !important; color:var(--menu-input-text) !important; border-radius:8px !important; }
   .searchable-menu .dropdown-item {
     cursor:pointer; border-radius:8px; padding:8px 12px;
-    color: #4a4e6b;
+    color: var(--menu-text);
     transition: all .2s;
     background: none;
     border: none;
@@ -251,21 +474,21 @@
     text-align: left;
     font-size: 14px;
   }
-  .searchable-menu .dropdown-item:hover { background:#f0f2f8; color:#1a1c2e; }
+  .searchable-menu .dropdown-item:hover { background: var(--menu-hover-bg); color: var(--menu-hover-text); }
   .searchable-menu .dropdown-item.active { background: linear-gradient(135deg, <%= tailColor %>, #4d96ff); color:#fff; }
   .modal-gloss .modal-content {
-    background: #fff;
-    border: 1px solid #e2e4ed;
+    background: var(--modal-bg);
+    border: 1px solid var(--card-border);
     border-radius: 20px;
-    color: #1a1c2e;
+    color: var(--modal-text);
   }
-  .modal-gloss .modal-header { border-bottom: 1px solid #e2e4ed; }
-  .modal-gloss .modal-footer { border-top: 1px solid #e2e4ed; }
-  .modal-gloss .btn-close { opacity: 0.5; }
+  .modal-gloss .modal-header { border-bottom: 1px solid var(--divider); }
+  .modal-gloss .modal-footer { border-top: 1px solid var(--divider); }
+  .modal-gloss .btn-close { filter: var(--close-filter); opacity: 0.5; }
   .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: #8a8fa8;
+    color: var(--empty-text);
   }
   .empty-state .icon { font-size: 48px; margin-bottom: 10px; }
   .status-indicator {
@@ -276,11 +499,13 @@
   }
 
   @media (max-width: 768px) {
-    #particleCanvas, #tailCanvas { display: none; }
+    #particleCanvas, #tailCanvas { display: none !important; }
     .content-wrap { padding: 16px 16px 40px; }
     .top-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
     .top-bar h2 { font-size: 22px; }
     .top-bar .nav-btns { width: 100%; justify-content: flex-end; }
+    .top-right { width: 100%; }
+    .theme-switcher { justify-content: flex-end; }
     .hero h1 { font-size: 24px; }
     .hero .subtitle { font-size: 13px; }
     .stats-row { gap: 10px; }
@@ -301,7 +526,7 @@
       align-items: center;
       padding: 6px 0;
       border-radius: 0 !important;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
+      border-bottom: 1px solid var(--mobile-td-border);
     }
     .table-gloss td:last-child { border-bottom: none; }
     .table-gloss td::before {
@@ -309,7 +534,7 @@
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #8a8fa8;
+      color: var(--mobile-td-before);
       font-weight: 600;
     }
     .btn-filter { width: 100%; }
@@ -325,9 +550,15 @@
 
   <div class="top-bar">
     <h2>Student Dashboard</h2>
-    <div class="nav-btns">
-      <a href="/student/calendar" class="btn-glass">Calendar</a>
-      <a href="/logout" class="btn-glass-danger">Logout</a>
+    <div class="top-right">
+      <div class="nav-btns">
+        <a href="/student/calendar" class="btn-glass">Calendar</a>
+        <a href="/logout" class="btn-glass-danger">Logout</a>
+      </div>
+      <div class="theme-switcher">
+        <button class="theme-dot dot-light" title="Light theme" onclick="setTheme('light')"></button>
+        <button class="theme-dot dot-dark" title="Dark theme" onclick="setTheme('dark')"></button>
+      </div>
     </div>
   </div>
 
@@ -398,7 +629,7 @@
   <div class="glass-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 style="margin-bottom:0;">My Assignments</h4>
-      <span style="color:#8a8fa8; font-size:13px;"><%= assignments.length %> assignment(s)</span>
+      <span style="color:var(--text-muted); font-size:13px;"><%= assignments.length %> assignment(s)</span>
     </div>
     <table class="table-gloss">
       <thead>
@@ -416,16 +647,16 @@
         <% } else { %>
           <% assignments.forEach(function(a) { %>
           <tr>
-            <td data-label="Title"><strong><%= a.title %></strong><br><span style="font-size:12px;color:#8a8fa8;"><%= a.assignedBy || 'Admin' %></span></td>
+            <td data-label="Title"><strong><%= a.title %></strong><br><span style="font-size:12px;color:var(--text-muted);"><%= a.assignedBy || 'Admin' %></span></td>
             <td data-label="Subject"><%= a.subject %></td>
             <td data-label="Due Date"><%= new Date(a.dueDate).toLocaleDateString() %></td>
             <td data-label="Status">
               <% if(a.status === 'Submitted') { %>
-                <span class="badge-gloss badge-submitted"><span class="status-indicator" style="background:#2b9e4a"></span>Submitted<%= a.isLate ? ' (Late)' : '' %></span>
+                <span class="badge-gloss badge-submitted"><span class="status-indicator" style="background:var(--badge-submitted-text)"></span>Submitted<%= a.isLate ? ' (Late)' : '' %></span>
               <% } else if(a.status === 'Pending') { %>
-                <span class="badge-gloss badge-pending"><span class="status-indicator" style="background:#e6a020"></span>Pending</span>
+                <span class="badge-gloss badge-pending"><span class="status-indicator" style="background:var(--badge-pending-text)"></span>Pending</span>
               <% } else if(a.status === 'Late') { %>
-                <span class="badge-gloss badge-late"><span class="status-indicator" style="background:#d14545"></span>Late</span>
+                <span class="badge-gloss badge-late"><span class="status-indicator" style="background:var(--badge-late-text)"></span>Late</span>
               <% } %>
             </td>
             <td data-label="Action">
@@ -456,7 +687,7 @@
         <div class="modal-body">
           <p><strong>Assignment:</strong> <span id="modalAssignmentTitle"></span></p>
           <div class="mb-3">
-            <label class="form-label" style="color:#4a4e6b;">Submission Link (Google Drive, Image URL, YouTube Video, etc.)</label>
+            <label class="form-label" style="color:var(--form-label);">Submission Link (Google Drive, Image URL, YouTube Video, etc.)</label>
             <input type="url" class="form-control form-glass" name="link" id="modalSubmissionLink" placeholder="https://..." required>
           </div>
         </div>
@@ -473,21 +704,21 @@
 <script>
 const TAIL_COLOR = '<%= tailColor %>';
 const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+let particleAnimId = null;
+let tailAnimId = null;
 
-if (!isMobile) {
-(function initParticles() {
+function startParticles() {
+  if (isMobile) return;
   const canvas = document.getElementById('particleCanvas');
+  if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let W, H;
   let mouseX = -1000, mouseY = -1000;
   let particles = [];
-  const PARTICLE_COUNT = 60;
-  const CONNECT_DIST = 120;
+  const PARTICLE_COUNT = 70;
+  const CONNECT_DIST = 130;
 
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   window.addEventListener('resize', resize);
   resize();
 
@@ -495,120 +726,93 @@ if (!isMobile) {
   document.addEventListener('mouseleave', () => { mouseX = -1000; mouseY = -1000; });
 
   class Particle {
-    constructor(i) { this.index = i; this.reset(); }
+    constructor() { this.reset(); }
     reset() {
-      this.x = Math.random() * W;
-      this.y = Math.random() * H;
-      this.vx = (Math.random() - 0.5) * 1.2;
-      this.vy = (Math.random() - 0.5) * 1.2;
-      this.r = Math.random() * 2.5 + 1.5;
+      this.x = Math.random() * W; this.y = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 1.2; this.vy = (Math.random() - 0.5) * 1.2;
+      this.r = Math.random() * 2.5 + 1.5; this.hue = Math.random() * 360;
     }
     update() {
-      const dx = mouseX - this.x;
-      const dy = mouseY - this.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 200) {
-        const force = (200 - dist) / 200 * 0.06;
-        this.vx += dx * force;
-        this.vy += dy * force;
-      }
-      this.vx *= 0.98;
-      this.vy *= 0.98;
-      this.x += this.vx;
-      this.y += this.vy;
-      if (this.x < 0 || this.x > W) { this.vx *= -1; this.x = Math.max(0, Math.min(W, this.x)); }
-      if (this.y < 0 || this.y > H) { this.vy *= -1; this.y = Math.max(0, Math.min(H, this.y)); }
+      const dx = mouseX - this.x, dy = mouseY - this.y, dist = Math.sqrt(dx*dx+dy*dy);
+      if (dist < 200) { const f = (200-dist)/200*0.06; this.vx+=dx*f; this.vy+=dy*f; }
+      this.vx*=0.98; this.vy*=0.98; this.x+=this.vx; this.y+=this.vy;
+      if (this.x<0||this.x>W){this.vx*=-1;this.x=Math.max(0,Math.min(W,this.x));}
+      if (this.y<0||this.y>H){this.vy*=-1;this.y=Math.max(0,Math.min(H,this.y));}
     }
     draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(77, 150, 255, 0.2)`;
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle = `hsla(${this.hue},80%,60%,0.25)`; ctx.fill();
     }
   }
 
-  for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle(i));
+  for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
 
   function drawConnections() {
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < CONNECT_DIST) {
-          const alpha = (1 - dist / CONNECT_DIST) * 0.08;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(77, 150, 255, ${alpha})`;
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
-        }
+    for (let i=0;i<particles.length;i++) for (let j=i+1;j<particles.length;j++) {
+      const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y, dist=Math.sqrt(dx*dx+dy*dy);
+      if (dist<CONNECT_DIST) {
+        const a=(1-dist/CONNECT_DIST)*0.06, h=(particles[i].hue+particles[j].hue)/2;
+        ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y); ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle=`hsla(${h},60%,70%,${a})`; ctx.lineWidth=0.8; ctx.stroke();
       }
     }
   }
 
   function animate() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
-    drawConnections();
-    requestAnimationFrame(animate);
+    ctx.clearRect(0,0,W,H); particles.forEach(p=>{p.update();p.draw();}); drawConnections();
+    particleAnimId = requestAnimationFrame(animate);
   }
   animate();
-})();
 }
 
-if (!isMobile) {
-(function initMouseTail() {
+function startMouseTail() {
+  if (isMobile) return;
   const canvas = document.createElement('canvas');
   canvas.id = 'tailCanvas';
   canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;pointer-events:none;';
   document.body.appendChild(canvas);
   const ctx = canvas.getContext('2d');
   let W, H;
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  window.addEventListener('resize', resize);
-  resize();
+  function resize() { W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+  window.addEventListener('resize',resize); resize();
 
-  let sparks = [];
-  let mx = -100, my = -100;
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    for (let i = 0; i < 3; i++) {
-      sparks.push({
-        x: mx + (Math.random() - 0.5) * 4,
-        y: my + (Math.random() - 0.5) * 4,
-        vx: (Math.random() - 0.5) * 3,
-        vy: (Math.random() - 0.5) * 3 - 1.5,
-        life: 1,
-        size: Math.random() * 4 + 2,
-        decay: 0.015 + Math.random() * 0.02
-      });
-    }
-  });
+  let sparks=[], mx=-100, my=-100;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;for(let i=0;i<3;i++){sparks.push({x:mx+(Math.random()-0.5)*4,y:my+(Math.random()-0.5)*4,vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3-1.5,life:1,size:Math.random()*4+2,decay:0.015+Math.random()*0.02});}});
 
   function animateTail() {
-    ctx.clearRect(0, 0, W, H);
-    sparks = sparks.filter(s => s.life > 0);
-    sparks.forEach(s => {
-      s.x += s.vx;
-      s.y += s.vy;
-      s.vy += 0.03;
-      s.life -= s.decay;
-      s.size *= 0.99;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
-      ctx.fillStyle = TAIL_COLOR;
-      ctx.globalAlpha = s.life * 0.6;
-      ctx.fill();
-      ctx.globalAlpha = 1;
-    });
-    requestAnimationFrame(animateTail);
+    ctx.clearRect(0,0,W,H); sparks=sparks.filter(s=>s.life>0);
+    sparks.forEach(s=>{s.x+=s.vx;s.y+=s.vy;s.vy+=0.03;s.life-=s.decay;s.size*=0.99;ctx.beginPath();ctx.arc(s.x,s.y,s.size*s.life,0,Math.PI*2);ctx.fillStyle=TAIL_COLOR;ctx.globalAlpha=s.life*0.6;ctx.fill();ctx.globalAlpha=1;});
+    tailAnimId = requestAnimationFrame(animateTail);
   }
   animateTail();
-})();
 }
+
+function stopAnimations() {
+  if (particleAnimId) { cancelAnimationFrame(particleAnimId); particleAnimId = null; }
+  if (tailAnimId) { cancelAnimationFrame(tailAnimId); tailAnimId = null; }
+  const tc = document.getElementById('tailCanvas'); if (tc) tc.remove();
+}
+
+function setTheme(theme) {
+  const dots = document.querySelectorAll('.theme-dot');
+  if (theme === 'dark') {
+    document.body.classList.add('dark');
+    localStorage.setItem('studentTheme', 'dark');
+    if (!isMobile) { startParticles(); startMouseTail(); }
+  } else {
+    document.body.classList.remove('dark');
+    localStorage.setItem('studentTheme', 'light');
+    stopAnimations();
+  }
+  dots.forEach(d => d.classList.remove('active'));
+  document.querySelector('.theme-dot.dot-' + theme).classList.add('active');
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('studentTheme') || 'light';
+  setTheme(saved);
+  document.querySelector('.theme-dot.dot-' + saved).classList.add('active');
+})();
 </script>
 <script>
 function searchableToggle(btn) {

@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body{ background:#f4f7fc; }
@@ -19,6 +20,22 @@
         .searchable-menu .dropdown-item { cursor:pointer; border-radius:4px; }
         .searchable-menu .dropdown-item:hover { background:#f0f0f0; }
         .searchable-menu .dropdown-item.active { background:#0d6efd; color:#fff; }
+        @media (max-width: 768px) {
+            .container { padding-left:12px; padding-right:12px; }
+            .d-flex.mb-4 { flex-direction:column; gap:10px; }
+            .d-flex.mb-4 > div:last-child { align-self:flex-end; }
+            .mb-4 .btn { display:inline-block; margin-bottom:6px; }
+            .table thead { display:none; }
+            .table tbody tr { display:block; padding:12px; margin-bottom:10px; border-radius:14px; background:#fff; box-shadow:0px 3px 12px rgba(0,0,0,0.06); }
+            .table tbody td { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border:none; border-bottom:1px solid rgba(0,0,0,0.04); }
+            .table tbody td:last-child { border-bottom:none; }
+            .table tbody td::before { content:attr(data-label); font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#8a8fa8; font-weight:600; }
+            .table tbody td:first-child { border-radius:14px 14px 0 0; }
+            .table tbody td:last-child { border-radius:0 0 14px 14px; }
+            .card-box.p-4 { padding:16px !important; }
+            .row.mb-4 .col-md-3 { margin-bottom:10px; }
+            .d-flex.justify-content-between.align-items-center { flex-direction:column; gap:8px; align-items:flex-start !important; }
+        }
     </style>
 </head>
 <body>
@@ -114,7 +131,7 @@
                         <option value="PG" <%= filters.level === 'PG' ? 'selected' : '' %>>PG</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="searchable-select">
                         <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
                             <%= filters.year ? 'Year ' + filters.year : 'All Years' %>
@@ -174,14 +191,14 @@
                 <% } else { %>
                     <% assignments.forEach(function(a) { %>
                     <tr>
-                        <td><a href="/admin/view/<%= a.id %><%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>"><%= a.title %></a></td>
-                        <td><%= a.assignedBy || 'Admin' %></td>
-                        <td><%= a.department %></td>
-                        <td><%= a.level || 'UG' %></td>
-                        <td><%= a.year %></td>
-                        <td><%= a.subject %></td>
-                        <td><%= new Date(a.dueDate).toLocaleDateString() %></td>
-                        <td>
+                        <td data-label="Title"><a href="/admin/view/<%= a.id %><%= dashQuery ? '?ref=' + encodeURIComponent(dashQuery) : '' %>"><%= a.title %></a></td>
+                        <td data-label="Assigned By"><%= a.assignedBy || 'Admin' %></td>
+                        <td data-label="Department"><%= a.department %></td>
+                        <td data-label="Degree Level"><%= a.level || 'UG' %></td>
+                        <td data-label="Year"><%= a.year %></td>
+                        <td data-label="Subject"><%= a.subject %></td>
+                        <td data-label="Due Date"><%= new Date(a.dueDate).toLocaleDateString() %></td>
+                        <td data-label="Progress">
                             <% if(a.totalStudents === 0) { %>
                                 <span class="badge bg-secondary">No Students</span>
                             <% } else { %>
@@ -214,7 +231,7 @@
                 <% } %>
             <% }); %>
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="searchable-select">
                         <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
                             <%= filters.department || 'All Departments' %>
@@ -236,7 +253,7 @@
                         <option value="PG" <%= filters.level === 'PG' ? 'selected' : '' %>>PG</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="searchable-select">
                         <button class="form-select dropdown-toggle" type="button" onclick="searchableToggle(this)">
                             <%= filters.year ? 'Year ' + filters.year : 'All Years' %>
@@ -293,11 +310,11 @@
                 <% } else { %>
                     <% displayTasks.forEach(function(t) { %>
                     <tr>
-                        <td><%= t.student.name %> (<%= t.student.username %>)</td>
-                        <td><a href="/admin/view/<%= t.assignment.id %>"><%= t.assignment.title %></a></td>
-                        <td><%= t.assignment.department %></td>
-                        <td><%= new Date(t.assignment.dueDate).toLocaleDateString() %></td>
-                        <td>
+                        <td data-label="Student Name"><%= t.student.name %> (<%= t.student.username %>)</td>
+                        <td data-label="Assignment"><a href="/admin/view/<%= t.assignment.id %>"><%= t.assignment.title %></a></td>
+                        <td data-label="Department"><%= t.assignment.department %></td>
+                        <td data-label="Due Date"><%= new Date(t.assignment.dueDate).toLocaleDateString() %></td>
+                        <td data-label="Status">
                             <% if(t.status === 'Submitted') { %>
                                 <span class="badge bg-success">Submitted</span>
                             <% } else if(t.status === 'Pending') { %>
@@ -306,7 +323,7 @@
                                 <span class="badge bg-danger">Late</span>
                             <% } %>
                         </td>
-                        <td>
+                        <td data-label="Submission">
                             <% if(t.submission && t.submission.link) { %>
                                 <a href="<%= t.submission.link %>" target="_blank" class="btn btn-sm btn-info text-white">View Link</a>
                             <% } else { %>
