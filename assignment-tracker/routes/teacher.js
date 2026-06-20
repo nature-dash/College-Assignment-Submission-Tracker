@@ -1,22 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
 const XLSX = require("xlsx");
+const { readData, writeData, readConfig } = require("../db");
 
-function readData(file) {
-  try {
-    const data = fs.readFileSync(`./data/${file}.json`);
-    return JSON.parse(data);
-  } catch (e) {
-    return [];
-  }
-}
-
-function writeData(file, data) {
-  fs.writeFileSync(`./data/${file}.json`, JSON.stringify(data, null, 2));
-}
-
-// Authentication middleware
 router.use((req, res, next) => {
   if (!req.session.user || req.session.user.role !== "teacher") {
     return res.redirect("/login");
@@ -24,14 +10,13 @@ router.use((req, res, next) => {
   next();
 });
 
-// Dashboard
-router.get("/", (req, res) => {
-  const allAssignments = readData("assignments");
+router.get("/", async (req, res) => {
+  const allAssignments = await readData("assignments");
   let assignments = [...allAssignments];
-  const users = readData("users");
+  const users = await readData("users");
   const students = users.filter(u => u.role === "student");
-  const submissions = readData("submissions");
-  const config = JSON.parse(fs.readFileSync('./data/config.json'));
+  const submissions = await readData("submissions");
+  const config = await readConfig();
   const allSubjects = [...new Set(allAssignments.map(a => a.subject))].sort();
 
   const { department, year, level, subject, taskStatus } = req.query;
@@ -53,22 +38,21 @@ router.get("/", (req, res) => {
   let pendingCount = 0;
   let lateCount = 0;
   let totalTasks = 0;
-  
+
   const allTasks = [];
 
-  // Compute progress per assignment
   const assignmentsWithProgress = assignments.map(a => {
     const applicableStudents = students.filter(s => s.department === a.department && s.year == a.year && (s.level || 'UG') === (a.level || 'UG'));
     const totalStudents = applicableStudents.length;
     let submittedStudents = 0;
-    
+
     applicableStudents.forEach(s => {
       totalTasks++;
       const sub = submissions.find(sub => sub.assignmentId == a.id && sub.studentId == s.id);
-      
+
       let status = "Pending";
       const isPastDue = new Date() > new Date(a.dueDate);
-      
+
       if (sub) {
         submittedCount++;
         submittedStudents++;
@@ -82,7 +66,7 @@ router.get("/", (req, res) => {
           status = "Pending";
         }
       }
-      
+
       allTasks.push({
         student: s,
         assignment: a,
@@ -90,14 +74,13 @@ router.get("/", (req, res) => {
         submission: sub
       });
     });
-    
+
     return { ...a, submittedStudents, totalStudents };
   });
 
   let displayTasks = null;
   if (taskStatus) {
     displayTasks = allTasks.filter(t => t.status === taskStatus);
-    // Apply filters to task view too
     if (department && department !== 'All Departments') {
       displayTasks = displayTasks.filter(t => t.assignment.department === department);
     }
@@ -126,15 +109,13 @@ router.get("/", (req, res) => {
   });
 });
 
-// Add Assignment (GET)
-router.get("/add", (req, res) => {
-  const config = JSON.parse(fs.readFileSync('./data/config.json'));
+router.get("/add", async (req, res) => {
+  const config = await readConfig();
   res.render("teacher/addAssignment", { config });
 });
 
-// Add Assignment (POST)
-router.post("/add", (req, res) => {
-  let assignments = readData("assignments");
+router.post("/add", async (req, res) => {
+  let assignments = await readData("assignments");
 
   const newAssignment = {
     id: Date.now(),
@@ -148,11 +129,10 @@ router.post("/add", (req, res) => {
   };
 
   assignments.push(newAssignment);
-  writeData("assignments", assignments);
+  await writeData("assignments", assignments);
 
-  // Increment totalAssigned for matching students
-  let studentLogs = readData("studentLogs");
-  const users = readData("users");
+  let studentLogs = await readData("studentLogs");
+  const users = await readData("users");
   const matchingStudents = users.filter(u =>
     u.role === "student" &&
     u.department === newAssignment.department &&
@@ -167,27 +147,25 @@ router.post("/add", (req, res) => {
       studentLogs.push({ studentId: s.id, totalAssigned: 1, totalCompleted: 0 });
     }
   });
-  writeData("studentLogs", studentLogs);
+  await writeData("studentLogs", studentLogs);
 
   res.redirect("/teacher");
 });
 
-// Calendar
-router.get("/calendar", (req, res) => {
-  const assignments = readData("assignments");
-  const users = readData("users");
+router.get("/calendar", async (req, res) => {
+  const assignments = await readData("assignments");
+  const users = await readData("users");
   const students = users.filter(u => u.role === "student");
-  const submissions = readData("submissions");
+  const submissions = await readData("submissions");
   const ref = req.query.ref || '';
   res.render("teacher/calendar", { assignments, students, submissions, ref });
 });
 
-// Students List
-router.get("/students", (req, res) => {
-  const users = readData("users");
+router.get("/students", async (req, res) => {
+  const users = await readData("users");
   const students = users.filter(u => u.role === "student");
-  const config = JSON.parse(fs.readFileSync('./data/config.json'));
-  
+  const config = await readConfig();
+
   const { department, year, level } = req.query;
   let filteredStudents = students;
   if (level && level !== 'All Levels') {
@@ -201,20 +179,19 @@ router.get("/students", (req, res) => {
   }
 
   const ref = req.query.ref || '';
-  res.render("teacher/students", { 
-    students: filteredStudents, 
+  res.render("teacher/students", {
+    students: filteredStudents,
     config,
     filters: req.query || {},
     ref
   });
 });
 
-// Download Students as Excel
-router.get("/students/download", (req, res) => {
-  const users = readData("users");
+router.get("/students/download", async (req, res) => {
+  const users = await readData("users");
   const students = users.filter(u => u.role === "student");
-  const assignments = readData("assignments");
-  const submissions = readData("submissions");
+  const assignments = await readData("assignments");
+  const submissions = await readData("submissions");
 
   const { department, year, level } = req.query;
   let filteredStudents = students;
@@ -259,15 +236,14 @@ router.get("/students/download", (req, res) => {
   res.send(buf);
 });
 
-// Student Details
-router.get("/student/:id", (req, res) => {
-  const users = readData("users");
+router.get("/student/:id", async (req, res) => {
+  const users = await readData("users");
   const student = users.find(u => u.id == req.params.id && u.role === "student");
-  
+
   if (!student) return res.redirect("/teacher/students");
 
-  const assignments = readData("assignments");
-  const submissions = readData("submissions");
+  const assignments = await readData("assignments");
+  const submissions = await readData("submissions");
   const ref = req.query.ref || '';
 
   const studentAssignments = assignments.filter(a => a.department === student.department && a.year == student.year);
@@ -278,7 +254,7 @@ router.get("/student/:id", (req, res) => {
     let isLate = false;
     const dueDate = new Date(a.dueDate);
     dueDate.setHours(23, 59, 59, 999);
-    
+
     if (sub) {
       status = "Submitted";
       if (new Date(sub.submittedAt) > dueDate) {
@@ -295,16 +271,15 @@ router.get("/student/:id", (req, res) => {
   res.render("teacher/studentDetails", { student, assignments: assignmentsWithStatus, ref });
 });
 
-// Toggle Checked/Unchecked on a submission
-router.post("/check/:assignmentId/:studentId", (req, res) => {
-  let submissions = readData("submissions");
+router.post("/check/:assignmentId/:studentId", async (req, res) => {
+  let submissions = await readData("submissions");
   const index = submissions.findIndex(s => s.assignmentId == req.params.assignmentId && s.studentId == req.params.studentId);
-  
+
   if (index !== -1) {
     submissions[index].checked = req.body.checked === 'true';
-    writeData("submissions", submissions);
+    await writeData("submissions", submissions);
   }
-  
+
   const ref = req.body.ref || '';
   if (ref) {
     return res.redirect('/teacher?' + ref);
@@ -312,21 +287,19 @@ router.post("/check/:assignmentId/:studentId", (req, res) => {
   res.redirect('/teacher/view/' + req.params.assignmentId);
 });
 
-// Edit Assignment (GET)
-router.get("/edit/:id", (req, res) => {
-  const assignments = readData("assignments");
+router.get("/edit/:id", async (req, res) => {
+  const assignments = await readData("assignments");
   const assignment = assignments.find(a => a.id == req.params.id);
   if (!assignment) return res.redirect("/teacher");
-  const config = JSON.parse(fs.readFileSync('./data/config.json'));
+  const config = await readConfig();
   const ref = req.query.ref || '';
   res.render("teacher/editAssignment", { assignment, ref, config });
 });
 
-// Edit Assignment (POST)
-router.post("/edit/:id", (req, res) => {
-  let assignments = readData("assignments");
+router.post("/edit/:id", async (req, res) => {
+  let assignments = await readData("assignments");
   const index = assignments.findIndex(a => a.id == req.params.id);
-  
+
   if (index !== -1) {
     assignments[index].title = req.body.title;
     assignments[index].department = req.body.department;
@@ -334,23 +307,22 @@ router.post("/edit/:id", (req, res) => {
     assignments[index].level = req.body.level || 'UG';
     assignments[index].subject = req.body.subject;
     assignments[index].dueDate = req.body.dueDate;
-    writeData("assignments", assignments);
+    await writeData("assignments", assignments);
   }
-  
+
   res.redirect("/teacher");
 });
 
-// View Assignment
-router.get("/view/:id", (req, res) => {
-  const assignments = readData("assignments");
+router.get("/view/:id", async (req, res) => {
+  const assignments = await readData("assignments");
   const assignment = assignments.find(a => a.id == req.params.id);
   if (!assignment) return res.redirect("/teacher");
-  
-  const users = readData("users");
+
+  const users = await readData("users");
   const students = users.filter(u => u.role === "student" && u.department === assignment.department && u.year == assignment.year && (u.level || 'UG') === (assignment.level || 'UG'));
-  const submissions = readData("submissions");
+  const submissions = await readData("submissions");
   const ref = req.query.ref || '';
-  
+
   const studentSubmissions = students.map(s => {
     const sub = submissions.find(sub => sub.assignmentId == assignment.id && sub.studentId == s.id);
     return {
@@ -362,10 +334,9 @@ router.get("/view/:id", (req, res) => {
   res.render("teacher/viewAssignment", { assignment, studentSubmissions, ref });
 });
 
-// Assessment History
-router.get("/history", (req, res) => {
-  const history = readData("assessmentHistory");
-  const config = JSON.parse(fs.readFileSync('./data/config.json'));
+router.get("/history", async (req, res) => {
+  const history = await readData("assessmentHistory");
+  const config = await readConfig();
   const ref = req.query.ref || '';
 
   const { department, level } = req.query;

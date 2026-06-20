@@ -1,15 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
-
-function readData(file) {
-  try {
-    const data = fs.readFileSync(`./data/${file}.json`);
-    return JSON.parse(data);
-  } catch (e) {
-    return [];
-  }
-}
+const { readData } = require("../db");
 
 router.get("/", (req, res) => {
   res.render("home");
@@ -19,11 +10,11 @@ router.get("/login", (req, res) => {
   res.render("login", { error: null });
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const username = req.body.username.trim();
   const password = req.body.password;
 
-  const users = readData("users");
+  const users = await readData("users");
 
   const user = users.find(
     u => u.username === username && u.password === password
@@ -49,7 +40,7 @@ router.post("/login", (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-  req.session.destroy();
+  req.session.reset();
   res.redirect("/");
 });
 

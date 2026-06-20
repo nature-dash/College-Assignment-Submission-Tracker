@@ -1,19 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
-
-function readData(file) {
-  try {
-    const data = fs.readFileSync(`./data/${file}.json`);
-    return JSON.parse(data);
-  } catch (e) {
-    return [];
-  }
-}
-
-function writeData(file, data) {
-  fs.writeFileSync(`./data/${file}.json`, JSON.stringify(data, null, 2));
-}
+const { readData, writeData } = require("../db");
 
 router.use((req, res, next) => {
   if (!req.session.user || req.session.user.role !== "student") {
@@ -22,10 +9,10 @@ router.use((req, res, next) => {
   next();
 });
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   const user = req.session.user;
-  const assignments = readData("assignments");
-  const submissions = readData("submissions");
+  const assignments = await readData("assignments");
+  const submissions = await readData("submissions");
 
   const myAssignments = assignments.filter(a => a.department === user.department && a.year == user.year);
 
@@ -78,11 +65,10 @@ router.get("/", (req, res) => {
   });
 });
 
-// Student Calendar
-router.get("/calendar", (req, res) => {
+router.get("/calendar", async (req, res) => {
   const user = req.session.user;
-  const assignments = readData("assignments");
-  const submissions = readData("submissions");
+  const assignments = await readData("assignments");
+  const submissions = await readData("submissions");
 
   const myAssignments = assignments.filter(a => a.department === user.department && a.year == user.year);
 
@@ -108,13 +94,13 @@ router.get("/calendar", (req, res) => {
   });
 });
 
-router.post("/submit/:id", (req, res) => {
-  let submissions = readData("submissions");
+router.post("/submit/:id", async (req, res) => {
+  let submissions = await readData("submissions");
   const assignmentId = Number(req.params.id);
   const studentId = req.session.user.id;
-  
+
   const index = submissions.findIndex(s => s.assignmentId === assignmentId && s.studentId === studentId);
-  
+
   const submissionData = {
     assignmentId,
     studentId,
@@ -130,18 +116,17 @@ router.post("/submit/:id", (req, res) => {
     submissions.push(submissionData);
   }
 
-  writeData("submissions", submissions);
+  await writeData("submissions", submissions);
 
-  // Increment totalCompleted for new submissions
   if (index === -1) {
-    let studentLogs = readData("studentLogs");
+    let studentLogs = await readData("studentLogs");
     const log = studentLogs.find(l => l.studentId === studentId);
     if (log) {
       log.totalCompleted++;
     } else {
       studentLogs.push({ studentId, totalAssigned: 0, totalCompleted: 1 });
     }
-    writeData("studentLogs", studentLogs);
+    await writeData("studentLogs", studentLogs);
   }
 
   res.redirect("/student");

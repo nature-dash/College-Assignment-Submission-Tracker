@@ -2,8 +2,9 @@
   "name": "assignment-tracker",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,9 +13,10 @@
   "type": "commonjs",
   "dependencies": {
     "body-parser": "^2.3.0",
+    "client-sessions": "^0.8.0",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
-    "express-session": "^1.19.0",
+    "serverless-http": "^3.2.0",
     "xlsx": "^0.18.5"
   }
 }
