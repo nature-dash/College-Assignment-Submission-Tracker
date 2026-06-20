@@ -44,10 +44,13 @@ required>
 class="form-select"
 name="department">
 
-<option>B.Sc Computer Science</option>
-<option>BCA</option>
-<option>B.Com</option>
-<option>BBA</option>
+<% if (config && config.departments) { %>
+  <% config.departments.forEach(function(d) { %>
+    <option><%= d %></option>
+  <% }); %>
+<% } else { %>
+  <option>BCA</option>
+<% } %>
 
 </select>
 

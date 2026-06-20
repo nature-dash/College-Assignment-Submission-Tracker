@@ -317,7 +317,7 @@
                     <th>Status</th>
                     <th>Submission Link</th>
                     <% if(filters.taskStatus === 'Submitted') { %>
-                    <th>Checked</th>
+                    <th>Checked by Teacher</th>
                     <% } %>
                 </tr>
             </thead>
@@ -350,15 +350,24 @@
                             <% } %>
                         </td>
                         <% if(filters.taskStatus === 'Submitted') { %>
-                        <td data-label="Checked">
-                            <form action="/teacher/check/<%= t.assignment.id %>/<%= t.student.id %>" method="POST" style="display:inline;">
-                                <input type="hidden" name="ref" value="<%= currentQuery %>">
-                                <% if(t.submission && t.submission.checked) { %>
-                                    <button class="btn btn-sm btn-success">Checked</button>
-                                <% } else { %>
-                                    <button class="btn btn-sm btn-outline-secondary">Not Checked</button>
-                                <% } %>
-                            </form>
+                        <td data-label="Checked by Teacher">
+                            <input type="checkbox" <%= (t.submission && t.submission.checked) ? 'checked' : '' %> onchange="
+                                var f = document.createElement('form');
+                                f.method = 'POST';
+                                f.action = '/teacher/check/<%= t.assignment.id %>/<%= t.student.id %>';
+                                var i = document.createElement('input');
+                                i.type = 'hidden';
+                                i.name = 'checked';
+                                i.value = this.checked;
+                                f.appendChild(i);
+                                var r = document.createElement('input');
+                                r.type = 'hidden';
+                                r.name = 'ref';
+                                r.value = '<%= currentQuery %>';
+                                f.appendChild(r);
+                                document.body.appendChild(f);
+                                f.submit();
+                            ">
                         </td>
                         <% } %>
                     </tr>

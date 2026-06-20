@@ -5,5 +5,89 @@
     "password": "psvasc@123",
     "role": "admin",
     "name": "Admin"
+  },
+  {
+    "id": 1781954082424,
+    "username": "teacher-10101",
+    "password": "psvasc@123",
+    "role": "teacher",
+    "name": "Nature Dash"
+  },
+  {
+    "id": 1781954279927,
+    "username": "8000-bba",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8000",
+    "department": "BBA",
+    "year": 1,
+    "level": "UG",
+    "semester": 1
+  },
+  {
+    "id": 1781955101071,
+    "username": "8001-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8001",
+    "department": "DS",
+    "level": "UG",
+    "semester": 1,
+    "year": 1
+  },
+  {
+    "id": 1781955136354,
+    "username": "8003-ai",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8003",
+    "department": "AI",
+    "level": "UG",
+    "semester": 3,
+    "year": 2
+  },
+  {
+    "id": 1781955209052,
+    "username": "8004-cs",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8004",
+    "department": "CS",
+    "level": "UG",
+    "semester": 5,
+    "year": 3
+  },
+  {
+    "id": 1781955381835,
+    "username": "8002-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8002",
+    "department": "DS",
+    "level": "UG",
+    "semester": 5,
+    "year": 3
+  },
+  {
+    "id": 1781955454273,
+    "username": "8005-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8005",
+    "department": "DS",
+    "level": "UG",
+    "semester": 5,
+    "year": 3
+  },
+  {
+    "id": 1781955651345,
+    "username": "8011-mscm",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8011",
+    "department": "M.SC-MICROBIOLOGY",
+    "level": "PG",
+    "semester": 3,
+    "year": 2
   }
 ]

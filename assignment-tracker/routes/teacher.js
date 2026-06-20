@@ -128,7 +128,8 @@ router.get("/", (req, res) => {
 
 // Add Assignment (GET)
 router.get("/add", (req, res) => {
-  res.render("teacher/addAssignment");
+  const config = JSON.parse(fs.readFileSync('./data/config.json'));
+  res.render("teacher/addAssignment", { config });
 });
 
 // Add Assignment (POST)
@@ -281,7 +282,7 @@ router.post("/check/:assignmentId/:studentId", (req, res) => {
   const index = submissions.findIndex(s => s.assignmentId == req.params.assignmentId && s.studentId == req.params.studentId);
   
   if (index !== -1) {
-    submissions[index].checked = !submissions[index].checked;
+    submissions[index].checked = req.body.checked === 'true';
     writeData("submissions", submissions);
   }
   
@@ -297,8 +298,9 @@ router.get("/edit/:id", (req, res) => {
   const assignments = readData("assignments");
   const assignment = assignments.find(a => a.id == req.params.id);
   if (!assignment) return res.redirect("/teacher");
+  const config = JSON.parse(fs.readFileSync('./data/config.json'));
   const ref = req.query.ref || '';
-  res.render("teacher/editAssignment", { assignment, ref });
+  res.render("teacher/editAssignment", { assignment, ref, config });
 });
 
 // Edit Assignment (POST)

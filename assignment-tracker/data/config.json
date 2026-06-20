@@ -30,5 +30,19 @@
       "semesters": 2
     }
   ],
-  "departments": []
+  "departments": [
+    "BBA",
+    "A&F",
+    "B.Com",
+    "BCA",
+    "DS",
+    "CS",
+    "AI",
+    "ECS",
+    "Micro",
+    "M.SC-BIOTECHNOLOGY",
+    "M.COM-COMMERCE (GENERAL)",
+    "M.SC-COMPUTER SCIENCE",
+    "M.SC-MICROBIOLOGY"
+  ]
 }

@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": 1781956069700,
+    "title": "Naan-Mudhalvan",
+    "department": "DS",
+    "year": 3,
+    "level": "UG",
+    "subject": "NM",
+    "dueDate": "2026-06-24",
+    "assignedBy": "Nature Dash"
+  },
+  {
+    "id": 1781956646158,
+    "title": "Assignment 1",
+    "department": "M.SC-MICROBIOLOGY",
+    "year": 2,
+    "level": "PG",
+    "subject": "NM",
+    "dueDate": "2026-06-09",
+    "assignedBy": "Nature Dash"
+  }
+]

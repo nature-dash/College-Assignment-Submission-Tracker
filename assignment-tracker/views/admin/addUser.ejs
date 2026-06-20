@@ -32,9 +32,6 @@
                     <option value="student" <%= form && form.role === 'student' ? 'selected' : '' %>>Student</option>
                     <option value="teacher" <%= form && form.role === 'teacher' ? 'selected' : '' %>>Teacher</option>
                 </select>
-                <div class="mt-2 text-muted">
-                    <small>Semester will be auto-assigned based on existing students.</small>
-                </div>
             </div>
 
             <div class="mb-3">
@@ -57,28 +54,22 @@
 
             <div class="mb-3" id="studentFields">
                 <label>Degree Level</label>
-                <select class="form-select mb-3" name="level">
+                <select class="form-select mb-3" name="level" id="levelSelect">
                     <% config.levels.forEach(function(l) { %>
                         <option value="<%= l %>" <%= form && form.level === l ? 'selected' : '' %>><%= l %></option>
                     <% }); %>
                 </select>
 
+                <label>Semester</label>
+                <select class="form-select mb-3" name="semester" id="semesterSelect">
+                </select>
+
                 <label>Department</label>
-                <select class="form-select mb-3" name="department">
+                <select class="form-select" name="department">
                     <% config.departments.forEach(function(d) { %>
                         <option <%= form && form.department === d ? 'selected' : '' %>><%= d %></option>
                     <% }); %>
                 </select>
-
-                <label>Year</label>
-                <select class="form-select" name="year">
-                    <% config.years.forEach(function(y) { %>
-                        <option value="<%= y.year %>" <%= form && form.year == y.year ? 'selected' : '' %>><%= y.level %> <%= y.year %></option>
-                    <% }); %>
-                </select>
-                <div class="mt-2 text-muted">
-                    <small>Semester will be auto-assigned based on existing students.</small>
-                </div>
             </div>
 
             <button class="btn btn-success">Save User</button>
@@ -87,9 +78,30 @@
 </div>
 
 <script>
+    function populateSemesters(level, selected) {
+        const maxSem = level === 'PG' ? 4 : 6;
+        const select = document.getElementById('semesterSelect');
+        select.innerHTML = '';
+        for (let i = 1; i <= maxSem; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = 'Semester ' + i;
+            if (selected && i === selected) opt.selected = true;
+            select.appendChild(opt);
+        }
+    }
+
     document.getElementById('roleSelect').addEventListener('change', function() {
         document.getElementById('studentFields').style.display = this.value === 'student' ? 'block' : 'none';
     });
+
+    document.getElementById('levelSelect').addEventListener('change', function() {
+        populateSemesters(this.value, null);
+    });
+
+    var currentLevel = '<%= (form && form.level) || "UG" %>';
+    var currentSem = <%= (form && form.semester) || 1 %>;
+    populateSemesters(currentLevel, currentSem);
     document.getElementById('studentFields').style.display = 'block';
 </script>
 

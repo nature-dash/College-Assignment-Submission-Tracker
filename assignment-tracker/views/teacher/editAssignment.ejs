@@ -25,10 +25,13 @@
             <div class="mb-3">
                 <label>Department</label>
                 <select class="form-select" name="department">
-                    <option <%= assignment.department === 'B.Sc Computer Science' ? 'selected' : '' %>>B.Sc Computer Science</option>
-                    <option <%= assignment.department === 'BCA' ? 'selected' : '' %>>BCA</option>
-                    <option <%= assignment.department === 'B.Com' ? 'selected' : '' %>>B.Com</option>
-                    <option <%= assignment.department === 'BBA' ? 'selected' : '' %>>BBA</option>
+                    <% if (config && config.departments) { %>
+                        <% config.departments.forEach(function(d) { %>
+                            <option <%= assignment.department === d ? 'selected' : '' %>><%= d %></option>
+                        <% }); %>
+                    <% } else { %>
+                        <option <%= assignment.department === 'BCA' ? 'selected' : '' %>>BCA</option>
+                    <% } %>
                 </select>
             </div>
 

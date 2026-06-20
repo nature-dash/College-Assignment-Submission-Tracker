@@ -276,9 +276,9 @@ router.post("/users/add", (req, res) => {
   };
   if (req.body.role === 'student') {
     newUser.department = req.body.department;
-    newUser.year = Number(req.body.year);
     newUser.level = req.body.level;
-    newUser.semester = inferSemester(Number(req.body.year), req.body.level, users, config);
+    newUser.semester = Number(req.body.semester);
+    newUser.year = Math.ceil(newUser.semester / 2);
   }
   users.push(newUser);
   writeData("users", users);
@@ -325,9 +325,9 @@ router.post("/users/edit/:id", (req, res) => {
   users[index].name = req.body.name;
   if (users[index].role === 'student') {
     users[index].department = req.body.department;
-    users[index].year = Number(req.body.year);
     users[index].level = req.body.level;
-    users[index].semester = inferSemester(Number(req.body.year), req.body.level, users, config);
+    users[index].semester = Number(req.body.semester);
+    users[index].year = Math.ceil(users[index].semester / 2);
   }
   writeData("users", users);
   res.redirect("/admin/users");
@@ -377,15 +377,6 @@ function readConfig() {
 }
 function writeConfig(data) {
   fs.writeFileSync('./data/config.json', JSON.stringify(data, null, 2));
-}
-
-function inferSemester(year, level, users, config) {
-  const semPerYear = config.years.find(y => y.level === level)?.semesters || 2;
-  const defaultSem = (year - 1) * semPerYear + 1;
-  const existingSameYear = users.filter(u => u.role === 'student' && u.year === year && (u.level || 'UG') === level);
-  if (existingSameYear.length === 0) return defaultSem;
-  const maxSem = Math.max(...existingSameYear.map(u => u.semester || defaultSem));
-  return Math.max(defaultSem, Math.min(maxSem + 1, year * semPerYear));
 }
 
 router.get("/config", (req, res) => {

@@ -51,28 +51,22 @@
             <% if(editUser.role === 'student') { %>
             <div class="mb-3">
                 <label>Degree Level</label>
-                <select class="form-select mb-3" name="level">
+                <select class="form-select mb-3" name="level" id="levelSelect">
                     <% config.levels.forEach(function(l) { %>
                         <option value="<%= l %>" <%= editUser.level === l ? 'selected' : '' %>><%= l %></option>
                     <% }); %>
                 </select>
 
+                <label>Semester</label>
+                <select class="form-select mb-3" name="semester" id="semesterSelect">
+                </select>
+
                 <label>Department</label>
-                <select class="form-select mb-3" name="department">
+                <select class="form-select" name="department">
                     <% config.departments.forEach(function(d) { %>
                         <option <%= editUser.department === d ? 'selected' : '' %>><%= d %></option>
                     <% }); %>
                 </select>
-
-                <label>Year</label>
-                <select class="form-select" name="year">
-                    <% config.years.forEach(function(y) { %>
-                        <option value="<%= y.year %>" <%= editUser.year == y.year ? 'selected' : '' %>><%= y.level %> <%= y.year %></option>
-                    <% }); %>
-                </select>
-                <div class="mt-2 text-muted">
-                    <small>Current Semester: <strong><%= editUser.semester || '-' %></strong> (automatically assigned)</small>
-                </div>
             </div>
             <% } %>
 
@@ -80,6 +74,29 @@
         </form>
     </div>
 </div>
+
+<script>
+    function populateSemesters(level, selected) {
+        const maxSem = level === 'PG' ? 4 : 6;
+        const select = document.getElementById('semesterSelect');
+        select.innerHTML = '';
+        for (let i = 1; i <= maxSem; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = 'Semester ' + i;
+            if (selected && i === selected) opt.selected = true;
+            select.appendChild(opt);
+        }
+    }
+
+    document.getElementById('levelSelect').addEventListener('change', function() {
+        populateSemesters(this.value, null);
+    });
+
+    var currentLevel = '<%= editUser.level || "UG" %>';
+    var currentSem = <%= editUser.semester || 1 %>;
+    populateSemesters(currentLevel, currentSem);
+</script>
 
 <footer class="site-footer">&copy; 2026 &#9670; Prince Shri Venkateshwara Arts and Science College &#9670; All rights reserved.</footer>
 </body>
