@@ -192,6 +192,7 @@ router.get("/passedout/download", (req, res) => {
   let passedOut = readData("passedout");
   const assignments = readData("assignments");
   const submissions = readData("submissions");
+  const assessmentHistory = readData("assessmentHistory");
   const { level, department, passedOutYear } = req.query;
 
   if (level && level !== 'All Levels') {
@@ -207,14 +208,22 @@ router.get("/passedout/download", (req, res) => {
   passedOut.sort((a, b) => (b.passedOutYear || 0) - (a.passedOutYear || 0));
 
   const data = passedOut.map(s => {
-    const assigned = assignments.filter(a => a.department === s.department && a.year == s.year).length;
-    const completed = submissions.filter(sub => sub.studentId == s.id).length;
+    const historyEntries = assessmentHistory.filter(h => h.studentId === s.id);
+    const allIds = new Set();
+    assignments.forEach(a => {
+      if (a.department === s.department && a.year <= s.year && (a.level || 'UG') === (s.level || 'UG')) {
+        allIds.add(a.id);
+      }
+    });
+    historyEntries.forEach(h => allIds.add(h.assignmentId));
+    const assigned = allIds.size;
+    const completed = submissions.filter(sub => sub.studentId == s.id).length + historyEntries.filter(h => h.submittedAt).length;
     return {
       "Username": s.username,
       "Name": s.name,
       "Department": s.department,
       "Level": s.level || 'UG',
-      "Year": s.year,
+      "Total Years": s.year,
       "Assessments Assigned": assigned,
       "Assessments Completed": completed,
       "Passed Out Year": s.passedOutYear
@@ -279,6 +288,14 @@ router.post("/users/add", (req, res) => {
     newUser.level = req.body.level;
     newUser.semester = Number(req.body.semester);
     newUser.year = Math.ceil(newUser.semester / 2);
+    // Initialize student log entry with existing assignment count
+    let studentLogs = readData("studentLogs");
+    const existingAssignments = readData("assignments");
+    const totalAssigned = existingAssignments.filter(a =>
+      a.department === newUser.department && a.year <= newUser.year && (a.level || 'UG') === newUser.level
+    ).length;
+    studentLogs.push({ studentId: newUser.id, totalAssigned, totalCompleted: 0 });
+    writeData("studentLogs", studentLogs);
   }
   users.push(newUser);
   writeData("users", users);
@@ -328,6 +345,12 @@ router.post("/users/edit/:id", (req, res) => {
     users[index].level = req.body.level;
     users[index].semester = Number(req.body.semester);
     users[index].year = Math.ceil(users[index].semester / 2);
+    // Ensure student has a log entry (backfill for existing students)
+    let studentLogs = readData("studentLogs");
+    if (!studentLogs.some(l => l.studentId === users[index].id)) {
+      studentLogs.push({ studentId: users[index].id, totalAssigned: 0, totalCompleted: 0 });
+      writeData("studentLogs", studentLogs);
+    }
   }
   writeData("users", users);
   res.redirect("/admin/users");
@@ -474,6 +497,12 @@ router.post("/promote", (req, res) => {
     return yc ? yc.semesters : 2;
   };
 
+  let studentLogs = readData("studentLogs");
+  const semesterOnlyIds = [];
+  const yearAdvanceIds = [];
+  const passedOutStudentIds = [];
+  const allSnapshot = [];
+
   const newUsers = [];
   users.forEach(u => {
     if (u.role !== "student") {
@@ -494,30 +523,122 @@ router.post("/promote", (req, res) => {
     const maxSem = u.year * semPerYear;
     const isLastYear = u.year >= maxYearForLevel[sLevel];
 
+    allSnapshot.push({
+      id: u.id, username: u.username, name: u.name,
+      department: u.department, level: sLevel, year: u.year, semester: u.semester
+    });
+
     if (sSem < maxSem) {
       u.semester = sSem + 1;
       newUsers.push(u);
+      semesterOnlyIds.push(u.id);
     } else if (!isLastYear) {
       u.year = u.year + 1;
       u.semester = (u.year - 1) * semPerYear + 1;
       newUsers.push(u);
+      yearAdvanceIds.push(u.id);
     } else {
+      // Compute lifetime totals from all data
+      const allAssignments = readData("assignments");
+      const allSubmissions = readData("submissions");
+      const historyEntries = readData("assessmentHistory").filter(h => h.studentId === u.id);
+      const allAssignmentIds = new Set();
+      allAssignments.forEach(a => {
+        if (a.department === u.department && a.year <= u.year && (a.level || 'UG') === sLevel) {
+          allAssignmentIds.add(a.id);
+        }
+      });
+      historyEntries.forEach(h => allAssignmentIds.add(h.assignmentId));
+      const totalAssigned = allAssignmentIds.size;
+      const totalSubmitted = allSubmissions.filter(s => s.studentId === u.id).length;
+      const historySubmitted = historyEntries.filter(h => h.submittedAt).length;
+
+      passedOutStudentIds.push(u.id);
       passedOut.push({
-        id: u.id,
-        username: u.username,
-        password: u.password,
-        role: "student",
-        name: u.name,
-        department: u.department,
-        year: u.year,
-        level: sLevel,
-        passedOutYear: currentYear
+        id: u.id, username: u.username, password: u.password,
+        role: "student", name: u.name, department: u.department,
+        year: u.year, level: sLevel, passedOutYear: currentYear,
+        totalAssigned, totalCompleted: totalSubmitted + historySubmitted
       });
     }
   });
 
   writeData("users", newUsers);
   writeData("passedout", passedOut);
+
+  // Archive only for year-advance + passed-out students (not semester-only)
+  const archiveStudentIds = [...yearAdvanceIds, ...passedOutStudentIds];
+
+  if (archiveStudentIds.length > 0) {
+    let history = readData("assessmentHistory");
+    const assignments = readData("assignments");
+    const submissions = readData("submissions");
+    const now = new Date().toISOString();
+
+    const allStudents = [...allSnapshot, ...passedOut.filter(p => archiveStudentIds.includes(p.id))];
+
+    archiveStudentIds.forEach(studentId => {
+      const student = allStudents.find(s => s.id === studentId);
+      if (!student) return;
+
+      // Archive only assignments for this student's current (old) year
+      const applicableAssignments = assignments.filter(a =>
+        a.department === student.department &&
+        a.year == student.year &&
+        (a.level || 'UG') === (student.level || 'UG')
+      );
+
+      applicableAssignments.forEach(assignment => {
+        if (history.some(h => h.assignmentId == assignment.id && h.studentId == studentId)) return;
+
+        const sub = submissions.find(s => s.assignmentId == assignment.id && s.studentId == studentId);
+
+        history.push({
+          assignmentId: assignment.id,
+          assignmentTitle: assignment.title,
+          assignmentSubject: assignment.subject,
+          assignmentDueDate: assignment.dueDate,
+          assignmentDepartment: assignment.department,
+          assignmentYear: assignment.year,
+          assignmentLevel: assignment.level || 'UG',
+          studentId: student.id,
+          studentUsername: student.username,
+          studentName: student.name,
+          studentDepartment: student.department,
+          studentLevel: student.level || 'UG',
+          studentYear: student.year,
+          studentSemester: student.semester,
+          submissionLink: sub ? (sub.link || '') : '',
+          submittedAt: sub ? sub.submittedAt : null,
+          checked: sub ? (sub.checked || false) : false,
+          archivedAt: now
+        });
+      });
+    });
+
+    writeData("assessmentHistory", history);
+
+    // Remove submissions only for archived students
+    const remaining = submissions.filter(sub => !archiveStudentIds.includes(sub.studentId));
+    writeData("submissions", remaining);
+  }
+
+  // Delete assignments with no applicable students remaining (consider ALL students)
+  const allAffectedIds = [...semesterOnlyIds, ...yearAdvanceIds, ...passedOutStudentIds];
+  if (allAffectedIds.length > 0) {
+    const currentStudents = readData("users").filter(u => u.role === "student");
+    let updatedAssignments = readData("assignments");
+    updatedAssignments = updatedAssignments.filter(a =>
+      currentStudents.some(s =>
+        s.department === a.department && s.year == a.year && (s.level || 'UG') === (a.level || 'UG')
+      )
+    );
+    writeData("assignments", updatedAssignments);
+
+    // Clear logs for passed out students
+    studentLogs = studentLogs.filter(l => !passedOutStudentIds.includes(l.studentId));
+    writeData("studentLogs", studentLogs);
+  }
 
   const ref = req.body.ref || '';
   res.redirect(ref ? "/admin/promote?success=1&ref=" + encodeURIComponent(ref) : "/admin/promote?success=1");
@@ -542,8 +663,25 @@ router.get("/passedout", (req, res) => {
 
   const assignments = readData("assignments");
   const submissions = readData("submissions");
+  const assessmentHistory = readData("assessmentHistory");
+
+  // Compute lifetime totals for each passed-out student
+  passedOut = passedOut.map(s => {
+    const historyEntries = assessmentHistory.filter(h => h.studentId === s.id);
+    const allIds = new Set();
+    assignments.forEach(a => {
+      if (a.department === s.department && a.year <= s.year && (a.level || 'UG') === (s.level || 'UG')) {
+        allIds.add(a.id);
+      }
+    });
+    historyEntries.forEach(h => allIds.add(h.assignmentId));
+    s.displayAssigned = allIds.size;
+    s.displayCompleted = submissions.filter(sub => sub.studentId == s.id).length + historyEntries.filter(h => h.submittedAt).length;
+    return s;
+  });
+
   passedOut.sort((a, b) => (b.passedOutYear || 0) - (a.passedOutYear || 0));
-  res.render("admin/passedout", { passedOut, config, ref, filters: req.query || {}, assignments, submissions });
+  res.render("admin/passedout", { passedOut, config, ref, filters: req.query || {}, assignments, submissions, assessmentHistory });
 });
 
 module.exports = router;

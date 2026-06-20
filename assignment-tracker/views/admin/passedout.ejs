@@ -98,7 +98,7 @@
                         <th>Name</th>
                         <th>Department</th>
                         <th>Degree Level</th>
-                        <th>Year</th>
+                        <th>Total Years</th>
                         <th>Assessments Assigned</th>
                         <th>Assessments Completed</th>
                         <th>Passed Out Year</th>
@@ -106,8 +106,8 @@
                 </thead>
                 <tbody>
                     <% passedOut.forEach(function(s, i) { 
-                        const assigned = assignments.filter(a => a.department === s.department && a.year == s.year).length;
-                        const completed = submissions.filter(sub => sub.studentId == s.id).length;
+                        const assigned = s.displayAssigned;
+                        const completed = s.displayCompleted;
                     %>
                         <tr>
                             <td><%= i + 1 %></td>

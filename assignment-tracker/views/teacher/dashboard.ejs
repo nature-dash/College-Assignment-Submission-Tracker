@@ -55,7 +55,9 @@
             <h2>Teacher Dashboard</h2>
             <p>Welcome, <b><%= user.name || user.username %></b></p>
         </div>
+        <% const fullQuery = Object.keys(filters).filter(k => filters[k]).map(k => k + '=' + encodeURIComponent(filters[k])).join('&'); %>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <a href="/teacher/history<%= fullQuery ? '?ref=' + encodeURIComponent(fullQuery) : '' %>" class="btn btn-secondary top-btn">Assessment History</a>
             <a href="/logout" class="btn btn-danger top-btn">Logout</a>
         </div>
     </div>

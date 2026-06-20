@@ -1,22 +1,12 @@
 [
   {
-    "id": 1781956069700,
-    "title": "Naan-Mudhalvan",
+    "id": 1781961775517,
+    "title": "NM-Sem1",
     "department": "DS",
-    "year": 3,
+    "year": 1,
     "level": "UG",
     "subject": "NM",
-    "dueDate": "2026-06-24",
-    "assignedBy": "Nature Dash"
-  },
-  {
-    "id": 1781956646158,
-    "title": "Assignment 1",
-    "department": "M.SC-MICROBIOLOGY",
-    "year": 2,
-    "level": "PG",
-    "subject": "NM",
-    "dueDate": "2026-06-09",
-    "assignedBy": "Nature Dash"
+    "dueDate": "2024-08-30",
+    "assignedBy": "Teacher 13353"
   }
 ]

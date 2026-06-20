@@ -131,6 +131,19 @@ router.post("/submit/:id", (req, res) => {
   }
 
   writeData("submissions", submissions);
+
+  // Increment totalCompleted for new submissions
+  if (index === -1) {
+    let studentLogs = readData("studentLogs");
+    const log = studentLogs.find(l => l.studentId === studentId);
+    if (log) {
+      log.totalCompleted++;
+    } else {
+      studentLogs.push({ studentId, totalAssigned: 0, totalCompleted: 1 });
+    }
+    writeData("studentLogs", studentLogs);
+  }
+
   res.redirect("/student");
 });
 

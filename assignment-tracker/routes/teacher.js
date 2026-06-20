@@ -150,6 +150,25 @@ router.post("/add", (req, res) => {
   assignments.push(newAssignment);
   writeData("assignments", assignments);
 
+  // Increment totalAssigned for matching students
+  let studentLogs = readData("studentLogs");
+  const users = readData("users");
+  const matchingStudents = users.filter(u =>
+    u.role === "student" &&
+    u.department === newAssignment.department &&
+    u.year == newAssignment.year &&
+    (u.level || 'UG') === (newAssignment.level || 'UG')
+  );
+  matchingStudents.forEach(s => {
+    const log = studentLogs.find(l => l.studentId === s.id);
+    if (log) {
+      log.totalAssigned++;
+    } else {
+      studentLogs.push({ studentId: s.id, totalAssigned: 1, totalCompleted: 0 });
+    }
+  });
+  writeData("studentLogs", studentLogs);
+
   res.redirect("/teacher");
 });
 
@@ -341,6 +360,32 @@ router.get("/view/:id", (req, res) => {
   });
 
   res.render("teacher/viewAssignment", { assignment, studentSubmissions, ref });
+});
+
+// Assessment History
+router.get("/history", (req, res) => {
+  const history = readData("assessmentHistory");
+  const config = JSON.parse(fs.readFileSync('./data/config.json'));
+  const ref = req.query.ref || '';
+
+  const { department, level } = req.query;
+  let filtered = [...history];
+
+  if (department && department !== 'All Departments') {
+    filtered = filtered.filter(h => h.studentDepartment === department);
+  }
+  if (level && level !== 'All Levels') {
+    filtered = filtered.filter(h => h.studentLevel === level);
+  }
+
+  filtered.sort((a, b) => new Date(b.archivedAt) - new Date(a.archivedAt));
+
+  res.render("teacher/history", {
+    history: filtered,
+    config,
+    ref,
+    filters: req.query || {}
+  });
 });
 
 module.exports = router;
