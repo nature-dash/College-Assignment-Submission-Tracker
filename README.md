@@ -1,6 +1,6 @@
 # Assignment Submission Management System
 
-A web-based assignment tracking system built with Node.js, Express, and EJS for **Prince Shri Venkateshwara Arts and Science College**.
+A web-based assignment tracking system built with Node.js, Express, and EJS for **Arts and Science College**.
 
 ## Tech Stack
 
