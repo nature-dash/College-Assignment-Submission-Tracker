@@ -1,5 +1,0 @@
-# Ignore generated files
-dist/* linguist-generated=true
-
-# Ignore vendor libraries
-node_modules/* linguist-vendored
