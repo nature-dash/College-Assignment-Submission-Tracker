@@ -1,0 +1,25 @@
+[
+  {
+    "assignmentId": 1781962440943,
+    "studentId": 1781962340771,
+    "link": "https://github.com/nature-dash/College-Assignment-Submission-Tracker.git",
+    "submittedAt": "2026-06-20T13:40:05.433Z",
+    "checked": true
+  },
+  {
+    "assignmentId": 1782060273422,
+    "studentId": 1782059889550,
+    "link": "",
+    "status": "Submitted",
+    "checked": false,
+    "originalStatus": "Pending",
+    "submittedAt": "2026-06-21T16:46:03.842Z"
+  },
+  {
+    "assignmentId": 1782060146343,
+    "studentId": 1782059942396,
+    "link": "https://github.com/nature-dash/College-Assignment-Submission-Tracker.git",
+    "submittedAt": "2026-06-21T17:13:17.394Z",
+    "checked": true
+  }
+]

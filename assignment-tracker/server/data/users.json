@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "username": "psvasc-admin",
+    "password": "psvasc@123",
+    "role": "admin",
+    "name": "Admin"
+  },
+  {
+    "id": 1781961481751,
+    "username": "teacher-13353",
+    "password": "psvasc@123",
+    "role": "teacher",
+    "name": "Teacher 13353"
+  },
+  {
+    "id": 1782059889550,
+    "username": "1234-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 1234",
+    "department": "DS",
+    "level": "UG",
+    "semester": 3,
+    "year": 2
+  },
+  {
+    "id": 1782059942396,
+    "username": "8118-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Elakkiya G",
+    "department": "DS",
+    "level": "UG",
+    "semester": 5,
+    "year": 3
+  }
+]

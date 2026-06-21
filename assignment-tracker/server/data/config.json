@@ -1,0 +1,48 @@
+{
+  "levels": [
+    "UG",
+    "PG"
+  ],
+  "years": [
+    {
+      "level": "UG",
+      "year": 1,
+      "semesters": 2
+    },
+    {
+      "level": "UG",
+      "year": 2,
+      "semesters": 2
+    },
+    {
+      "level": "UG",
+      "year": 3,
+      "semesters": 2
+    },
+    {
+      "level": "PG",
+      "year": 1,
+      "semesters": 2
+    },
+    {
+      "level": "PG",
+      "year": 2,
+      "semesters": 2
+    }
+  ],
+  "departments": [
+    "BBA",
+    "A&F",
+    "B.Com",
+    "BCA",
+    "DS",
+    "CS",
+    "AI",
+    "ECS",
+    "Micro",
+    "M.SC-BIOTECHNOLOGY",
+    "M.COM-COMMERCE (GENERAL)",
+    "M.SC-COMPUTER SCIENCE",
+    "M.SC-MICROBIOLOGY"
+  ]
+}

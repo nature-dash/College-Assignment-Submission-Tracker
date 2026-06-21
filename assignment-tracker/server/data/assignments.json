@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1782060146343,
+    "title": "UNM-Internship on React App Development",
+    "description": "Project-Based React Development & Career\nReadiness\n\n1. College Assignment Submission Tracker\nScenario:\nA college department struggles to track assignment submissions across multiple\nsubjects. Faculty want a dashboard to view submitted, pending, and late\nassignments.\nKey Features:\n Add assignment (title, subject, due date)\n Mark submission status (Submitted / Pending / Late)\n Filter by subject\n Dashboard summary (counts)",
+    "department": "DS",
+    "year": 3,
+    "level": "UG",
+    "subject": "NM",
+    "dueDate": "2026-06-29",
+    "assignedBy": "Teacher 13353"
+  },
+  {
+    "id": 1782060273422,
+    "title": "Statistics CW",
+    "description": "Statistics unit 1 CW submission ",
+    "department": "DS",
+    "year": 2,
+    "level": "UG",
+    "subject": "Statistics",
+    "dueDate": "2026-06-26",
+    "assignedBy": "Teacher 13353"
+  },
+  {
+    "id": 1782060336529,
+    "title": "DSE CW",
+    "description": "DSE Unit 1 CW Checking ",
+    "department": "DS",
+    "year": 2,
+    "level": "UG",
+    "subject": "DSE",
+    "dueDate": "2026-06-26",
+    "assignedBy": "Teacher 13353"
+  }
+]

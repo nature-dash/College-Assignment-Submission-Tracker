@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1781961524122,
+    "username": "8119-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8119",
+    "department": "DS",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026,
+    "totalAssigned": 4,
+    "totalCompleted": 3
+  },
+  {
+    "id": 1781962313904,
+    "username": "8008-ds",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8008",
+    "department": "DS",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026,
+    "totalAssigned": 1,
+    "totalCompleted": 1
+  },
+  {
+    "id": 1782054218171,
+    "username": "7007-ds",
+    "role": "student",
+    "name": "Student 7001",
+    "department": "DS",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026,
+    "totalAssigned": 1,
+    "totalCompleted": 0
+  },
+  {
+    "id": 1782057051999,
+    "username": "8101-ai",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8101",
+    "department": "AI",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026,
+    "totalAssigned": 3,
+    "totalCompleted": 2
+  },
+  {
+    "id": 1782057818351,
+    "username": "8102-ai",
+    "password": "psvasc@123",
+    "role": "student",
+    "name": "Student 8102",
+    "department": "AI",
+    "year": 3,
+    "level": "UG",
+    "passedOutYear": 2026,
+    "totalAssigned": 3,
+    "totalCompleted": 3
+  }
+]
